@@ -72,7 +72,7 @@ export class RefundService {
         return [];
       }
 
-      return data ? data.map(r => this.mapRefund(r)) : [];
+      return data ? data.map((r: any) => this.mapRefund(r)) : [];
     } catch (error) {
       console.error('Error fetching order refunds:', error);
       return [];
@@ -100,7 +100,7 @@ export class RefundService {
         return [];
       }
 
-      return data ? data.map(r => this.mapRefund(r)) : [];
+      return data ? data.map((r: any) => this.mapRefund(r)) : [];
     } catch (error) {
       console.error('Error fetching all refunds:', error);
       return [];

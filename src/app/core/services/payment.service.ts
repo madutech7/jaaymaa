@@ -297,7 +297,7 @@ export class PaymentService {
         return [];
       }
 
-      return data ? data.map(t => this.mapTransaction(t)) : [];
+      return data ? data.map((t: any) => this.mapTransaction(t)) : [];
     } catch (error) {
       if (!environment.production) {
         console.error('Error fetching order transactions:', error);

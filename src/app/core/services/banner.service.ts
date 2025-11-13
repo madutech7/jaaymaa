@@ -47,7 +47,7 @@ export class BannerService {
         return;
       }
 
-      const banners = data ? data.map(b => this.mapBanner(b)) : [];
+      const banners = data ? data.map((b: any) => this.mapBanner(b)) : [];
       this.bannersSubject.next(banners);
     } catch (error) {
       console.error('Error loading banners:', error);

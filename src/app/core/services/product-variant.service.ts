@@ -38,7 +38,7 @@ export class ProductVariantService {
         return [];
       }
 
-      return data ? data.map(v => this.mapVariant(v)) : [];
+      return data ? data.map((v: any) => this.mapVariant(v)) : [];
     } catch (error) {
       console.error('Error fetching product variants:', error);
       return [];
