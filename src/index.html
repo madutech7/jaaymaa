@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>JAAYMAA</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <meta name="description" content="JAAYMAA - Votre destination premium pour les produits de qualité au Sénégal. Livraison rapide à Dakar et dans tout le pays. Paiement sécurisé Wave, Orange Money, carte bancaire.">
+  <meta name="keywords" content="e-commerce, shopping, Sénégal, Dakar, livraison, Wave, Orange Money, produits premium">
+  <meta name="author" content="JAAYMAA">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://www.googletagmanager.com;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com;
+    font-src 'self' https://fonts.gstatic.com data:;
+    img-src 'self' data: https: blob:;
+    connect-src 'self' http://localhost:3000 http://localhost:54321 https://accounts.google.com https://oauth2.googleapis.com https://fonts.googleapis.com https://fonts.gstatic.com https://images.unsplash.com https://www.googletagmanager.com https://lh3.googleusercontent.com https://*.supabase.co wss://*.supabase.co https://*.vercel.app;
+    frame-src 'self' https://accounts.google.com;
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+  ">
+  
+  <!-- Service Worker sera géré par Angular -->
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://shoplux.sn/">
+  <meta property="og:title" content="JAAYMAA - Shopping Premium au Sénégal">
+  <meta property="og:description" content="Votre destination premium pour les produits de qualité au Sénégal. Livraison rapide, service client exceptionnel.">
+  <meta property="og:image" content="/assets/logo.png">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="JAAYMAA">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://shoplux.sn/">
+  <meta property="twitter:title" content="JAAYMAA - Shopping Premium au Sénégal">
+  <meta property="twitter:description" content="Votre destination premium pour les produits de qualité au Sénégal. Livraison rapide, service client exceptionnel.">
+  <meta property="twitter:image" content="/assets/logo.png">
+
+  <!-- PWA -->
+  <link rel="icon" type="image/png" href="assets/icon.png?v=3">
+  <link rel="manifest" href="manifest.webmanifest?v=3">
+  <meta name="theme-color" content="#667eea">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="JAAYMAA">
+  <link rel="apple-touch-icon" href="assets/icon.png?v=3">
+  <link rel="apple-touch-icon" sizes="152x152" href="assets/icon.png?v=3">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icon.png?v=3">
+  <link rel="apple-touch-icon" sizes="167x167" href="assets/icon.png?v=3">
+  
+  <!-- Preload critical resources -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://images.unsplash.com">
+  <link rel="preconnect" href="https://www.googletagmanager.com">
+  
+  <!-- Google Analytics 4 - Chargé dynamiquement -->
+  <script>
+    // GA4 sera chargé par le service Angular avec les variables d'environnement
+  </script>
+  
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "JAAYMAA",
+    "url": "https://shoplux.sn",
+    "logo": "https://shoplux.sn/assets/logo.png",
+    "description": "Votre destination premium pour les produits de qualité au Sénégal",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Dakar",
+      "addressCountry": "SN"
+    },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+221-33-123-45-67",
+      "contactType": "customer service",
+      "availableLanguage": "French"
+    },
+    "sameAs": [
+      "https://facebook.com/shoplux",
+      "https://twitter.com/shoplux",
+      "https://instagram.com/shoplux"
+    ]
+  }
+  </script>
+</head>
+<body>
+  <app-root></app-root>
+  <noscript>
+    <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+      <h1>JavaScript requis</h1>
+      <p>Veuillez activer JavaScript pour continuer à utiliser cette application.</p>
+      <p>Please enable JavaScript to continue using this application.</p>
+    </div>
+  </noscript>
+</body>
+</html>
