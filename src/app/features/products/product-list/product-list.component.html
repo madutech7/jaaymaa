@@ -1,0 +1,320 @@
+<div class="bg-white min-h-screen" #productsContainer>
+  <div class="container mx-auto px-4 md:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Tous les produits</h1>
+      <p class="text-gray-600">{{ totalProducts }} produits disponibles</p>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-8">
+      <!-- Filters Sidebar - Desktop -->
+      <aside class="lg:w-64 flex-shrink-0">
+        <div class="lg:sticky lg:top-24">
+          <!-- Mobile Filter Toggle -->
+          <button 
+            (click)="showFilters = !showFilters" 
+            class="lg:hidden w-full px-4 py-3 bg-gray-100 text-gray-900 rounded-lg mb-4 font-medium flex items-center justify-between"
+          >
+            <span>Filtres</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+            </svg>
+          </button>
+
+          <div [class.hidden]="!showFilters" class="lg:block space-y-6">
+            <!-- Category Filter -->
+            <div class="border-b border-gray-200 pb-6">
+              <h3 class="font-bold text-gray-900 mb-4 uppercase text-sm">Catégorie</h3>
+              <div class="space-y-2">
+                <label class="flex items-center cursor-pointer group">
+                  <input 
+                    type="radio" 
+                    name="category"
+                    value=""
+                    [(ngModel)]="selectedCategory"
+                    (change)="onCategoryChange()"
+                    class="w-4 h-4 text-black focus:ring-black"
+                  />
+                  <span class="ml-3 text-sm text-gray-700 group-hover:text-black">Toutes</span>
+                </label>
+                <label *ngFor="let category of categories" class="flex items-center cursor-pointer group">
+                  <input 
+                    type="radio" 
+                    name="category"
+                    [value]="category.slug"
+                    [(ngModel)]="selectedCategory"
+                    (change)="onCategoryChange()"
+                    class="w-4 h-4 text-black focus:ring-black"
+                  />
+                  <span class="ml-3 text-sm text-gray-700 group-hover:text-black">{{ category.name }}</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Price Range -->
+            <div class="border-b border-gray-200 pb-6">
+              <h3 class="font-bold text-gray-900 mb-4 uppercase text-sm">Prix</h3>
+              <div class="space-y-4">
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-gray-700">{{ currencyService.formatPrice(priceRange.min * 1000) }}</span>
+                  <span class="text-gray-700">{{ currencyService.formatPrice(priceRange.max * 1000) }}</span>
+                </div>
+                <input 
+                  type="range" 
+                  [(ngModel)]="priceRange.min" 
+                  (change)="onPriceRangeChange()"
+                  min="0" 
+                  max="1000" 
+                  class="w-full accent-black"
+                />
+                <input 
+                  type="range" 
+                  [(ngModel)]="priceRange.max" 
+                  (change)="onPriceRangeChange()"
+                  min="0" 
+                  max="1000" 
+                  class="w-full accent-black"
+                />
+              </div>
+            </div>
+
+            <!-- Brand Filter -->
+            <div class="border-b border-gray-200 pb-6" *ngIf="availableBrands.length > 0">
+              <h3 class="font-bold text-gray-900 mb-4 uppercase text-sm">Marque</h3>
+              <div class="space-y-2">
+                <label *ngFor="let brand of availableBrands" class="flex items-center cursor-pointer group">
+                  <input 
+                    type="checkbox" 
+                    [checked]="selectedBrands.includes(brand)"
+                    (change)="onBrandChange(brand, $any($event.target).checked)"
+                    class="w-4 h-4 text-black rounded focus:ring-black"
+                  />
+                  <span class="ml-3 text-sm text-gray-700 group-hover:text-black">{{ brand }}</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Stock Filter -->
+            <div>
+              <label class="flex items-center cursor-pointer group">
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="filter.inStock"
+                  (change)="loadProducts()"
+                  class="w-4 h-4 text-black rounded focus:ring-black"
+                />
+                <span class="ml-3 text-sm text-gray-700 group-hover:text-black">En stock uniquement</span>
+              </label>
+            </div>
+
+            <!-- Clear Filters -->
+            <button 
+              (click)="clearFilters()" 
+              class="w-full py-3 text-sm font-medium text-gray-900 hover:text-gray-600 transition-colors border border-gray-300 rounded-lg"
+            >
+              Réinitialiser les filtres
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Products Grid -->
+      <main class="flex-1">
+        <!-- Sort Options -->
+        <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
+          <p class="text-sm text-gray-600">
+            {{ (currentPage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentPage * itemsPerPage, totalProducts) }} sur {{ totalProducts }}
+          </p>
+          
+          <div class="flex items-center gap-2">
+            <label class="text-sm text-gray-900 font-medium">Trier par:</label>
+            <select 
+              [(ngModel)]="filter.sort" 
+              (change)="onSortChange()"
+              class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black"
+            >
+              <option value="newest">Nouveautés</option>
+              <option value="price-asc">Prix croissant</option>
+              <option value="price-desc">Prix décroissant</option>
+              <option value="popular">Popularité</option>
+              <option value="rating">Meilleures notes</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div *ngFor="let i of [1,2,3,4,5,6,7,8,9]" class="animate-pulse">
+            <div class="bg-gray-200 aspect-square rounded-lg"></div>
+            <div class="mt-4 h-4 bg-gray-200 rounded"></div>
+            <div class="mt-2 h-4 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div *ngIf="!isLoading" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div *ngFor="let product of products" class="group">
+            <a [routerLink]="['/products', product.slug]" 
+               (click)="onProductClick(product)">
+              <!-- Product Image -->
+              <div class="relative aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4">
+                <app-lazy-image 
+                  [src]="getProductImage(product)" 
+                  [alt]="product.name"
+                  imageClass="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  rootMargin="100px">
+                </app-lazy-image>
+                
+                <!-- Badges -->
+                <div class="absolute top-4 left-4 flex flex-col gap-2">
+                  <span *ngIf="product.compareAtPrice" 
+                        class="px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
+                    -{{ getDiscountPercentage(product) }}%
+                  </span>
+                  <span *ngIf="product.isNewArrival" 
+                        class="px-3 py-1 bg-black text-white text-xs font-bold rounded-full">
+                    NOUVEAU
+                  </span>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    (click)="toggleCompare(product, $event)"
+                    [class.bg-black]="isInComparison(product.id)"
+                    [class.text-white]="isInComparison(product.id)"
+                    [class.bg-white]="!isInComparison(product.id)"
+                    [class.text-black]="!isInComparison(product.id)"
+                    class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                    title="Comparer"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Product Info -->
+              <div>
+                <!-- Brand -->
+                <p class="text-sm text-gray-600 mb-1" *ngIf="product.brand">
+                  {{ product.brand }}
+                </p>
+                
+                <!-- Product Name -->
+                <h3 class="text-sm md:text-base font-medium text-gray-900 mb-2 line-clamp-2">
+                  {{ product.name }}
+                </h3>
+
+                <!-- Price -->
+                <div class="flex items-baseline gap-2">
+                  <span class="text-base md:text-lg font-medium text-gray-900">
+                    {{ currencyService.formatPrice(product.price) }}
+                  </span>
+                  <span *ngIf="product.compareAtPrice" class="text-sm text-gray-500 line-through">
+                    {{ currencyService.formatPrice(product.compareAtPrice) }}
+                  </span>
+                </div>
+
+                <!-- Add to Cart Button (Mobile) -->
+                <button 
+                  (click)="addToCart(product, $event)"
+                  class="mt-4 w-full py-3 bg-black text-white rounded-full font-medium hover:bg-gray-900 transition-colors md:hidden"
+                >
+                  Ajouter au panier
+                </button>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!isLoading && products.length === 0" class="text-center py-16">
+          <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+          </svg>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2">Aucun produit trouvé</h3>
+          <p class="text-gray-600 mb-6">Essayez de modifier vos filtres</p>
+          <button (click)="clearFilters()" class="px-8 py-3 bg-black text-white rounded-full font-medium hover:bg-gray-900 transition-colors">
+            Réinitialiser les filtres
+          </button>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="!isLoading && totalPages > 1" class="mt-12">
+          <div class="flex items-center justify-center gap-2">
+            <!-- Previous Button -->
+            <button 
+              (click)="previousPage()"
+              [disabled]="currentPage === 1"
+              [class.opacity-50]="currentPage === 1"
+              [class.cursor-not-allowed]="currentPage === 1"
+              class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition font-medium disabled:hover:bg-white"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+            </button>
+
+            <!-- Page Numbers -->
+            <div class="flex gap-1">
+              <button 
+                *ngFor="let page of getPageNumbers()"
+                (click)="page > 0 ? goToPage(page) : null"
+                [disabled]="page === -1"
+                [class.bg-black]="page === currentPage"
+                [class.text-white]="page === currentPage"
+                [class.border-gray-300]="page !== currentPage && page > 0"
+                [class.cursor-default]="page === -1"
+                class="min-w-[40px] px-3 py-2 border rounded-lg font-medium transition hover:bg-gray-100"
+                [class.hover:bg-black]="page === currentPage"
+              >
+                <span *ngIf="page > 0">{{ page }}</span>
+                <span *ngIf="page === -1">...</span>
+              </button>
+            </div>
+
+            <!-- Next Button -->
+            <button 
+              (click)="nextPage()"
+              [disabled]="currentPage === totalPages"
+              [class.opacity-50]="currentPage === totalPages"
+              [class.cursor-not-allowed]="currentPage === totalPages"
+              class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition font-medium disabled:hover:bg-white"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Pagination Info -->
+          <div class="text-center mt-4 text-sm text-gray-600">
+            Page {{ currentPage }} sur {{ totalPages }}
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- Quick View Modal -->
+<app-quick-view-modal
+  [product]="selectedProduct"
+  [isOpen]="showQuickView"
+  (closeModal)="closeQuickView()"
+></app-quick-view-modal>
+
+<!-- Floating Compare Button -->
+<button
+  *ngIf="compareCount > 0"
+  (click)="goToCompare()"
+  class="fixed bottom-20 md:bottom-6 right-6 z-40 flex items-center gap-3 px-6 py-4 bg-black text-white rounded-full shadow-xl hover:bg-gray-900 transition-all"
+>
+  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+  </svg>
+  <span class="font-medium hidden sm:block">Comparer ({{ compareCount }})</span>
+  <span class="font-medium sm:hidden">{{ compareCount }}</span>
+</button>

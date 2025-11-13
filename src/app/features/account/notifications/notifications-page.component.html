@@ -1,0 +1,197 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">Notifications</h1>
+        <p class="text-gray-600 mt-1">
+          {{ unreadCount }} notification{{ unreadCount > 1 ? 's' : '' }} non lue{{ unreadCount > 1 ? 's' : '' }}
+        </p>
+      </div>
+      <button
+        *ngIf="unreadCount > 0"
+        (click)="markAllAsRead()"
+        class="px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors"
+      >
+        Tout marquer comme lu
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-wrap gap-2 mb-6">
+      <button
+        (click)="setFilter('all')"
+        [class.bg-indigo-600]="selectedFilter === 'all'"
+        [class.text-white]="selectedFilter === 'all'"
+        [class.bg-gray-100]="selectedFilter !== 'all'"
+        [class.text-gray-700]="selectedFilter !== 'all'"
+        class="px-4 py-2 rounded-xl font-medium transition-colors hover:bg-indigo-500 hover:text-white"
+      >
+        Toutes ({{ notifications.length }})
+      </button>
+      <button
+        (click)="setFilter('unread')"
+        [class.bg-indigo-600]="selectedFilter === 'unread'"
+        [class.text-white]="selectedFilter === 'unread'"
+        [class.bg-gray-100]="selectedFilter !== 'unread'"
+        [class.text-gray-700]="selectedFilter !== 'unread'"
+        class="px-4 py-2 rounded-xl font-medium transition-colors hover:bg-indigo-500 hover:text-white"
+      >
+        Non lues ({{ unreadCount }})
+      </button>
+      <button
+        (click)="setFilter('order')"
+        [class.bg-indigo-600]="selectedFilter === 'order'"
+        [class.text-white]="selectedFilter === 'order'"
+        [class.bg-gray-100]="selectedFilter !== 'order'"
+        [class.text-gray-700]="selectedFilter !== 'order'"
+        class="px-4 py-2 rounded-xl font-medium transition-colors hover:bg-indigo-500 hover:text-white"
+      >
+        📦 Commandes
+      </button>
+      <button
+        (click)="setFilter('promotion')"
+        [class.bg-indigo-600]="selectedFilter === 'promotion'"
+        [class.text-white]="selectedFilter === 'promotion'"
+        [class.bg-gray-100]="selectedFilter !== 'promotion'"
+        [class.text-gray-700]="selectedFilter !== 'promotion'"
+        class="px-4 py-2 rounded-xl font-medium transition-colors hover:bg-indigo-500 hover:text-white"
+      >
+        🎉 Promotions
+      </button>
+      <button
+        (click)="setFilter('review')"
+        [class.bg-indigo-600]="selectedFilter === 'review'"
+        [class.text-white]="selectedFilter === 'review'"
+        [class.bg-gray-100]="selectedFilter !== 'review'"
+        [class.text-gray-700]="selectedFilter !== 'review'"
+        class="px-4 py-2 rounded-xl font-medium transition-colors hover:bg-indigo-500 hover:text-white"
+      >
+        ⭐ Avis
+      </button>
+      <button
+        (click)="setFilter('system')"
+        [class.bg-indigo-600]="selectedFilter === 'system'"
+        [class.text-white]="selectedFilter === 'system'"
+        [class.bg-gray-100]="selectedFilter !== 'system'"
+        [class.text-gray-700]="selectedFilter !== 'system'"
+        class="px-4 py-2 rounded-xl font-medium transition-colors hover:bg-indigo-500 hover:text-white"
+      >
+        ⚙️ Système
+      </button>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="space-y-4">
+      <!-- Empty State -->
+      <div *ngIf="filteredNotifications.length === 0" class="text-center py-16 bg-gray-50 rounded-2xl">
+        <svg class="mx-auto h-20 w-20 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg>
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">Aucune notification</h3>
+        <p class="text-gray-500">Vous n'avez aucune notification pour le moment</p>
+      </div>
+
+      <!-- Notification Cards -->
+      <div 
+        *ngFor="let notification of filteredNotifications"
+        class="bg-white rounded-2xl border-2 hover:border-indigo-200 transition-all cursor-pointer shadow-sm hover:shadow-md"
+        [class.border-gray-200]="notification.read"
+        [class.border-indigo-300]="!notification.read"
+        [class.bg-indigo-50/30]="!notification.read"
+        (click)="markAsRead(notification)"
+        [routerLink]="notification.link || null"
+      >
+        <div class="p-6 flex items-start space-x-4">
+          <!-- Icon -->
+          <div 
+            class="flex-shrink-0 h-12 w-12 rounded-full flex items-center justify-center text-2xl"
+            [class.bg-blue-100]="notification.type === 'order'"
+            [class.bg-pink-100]="notification.type === 'promotion'"
+            [class.bg-gray-100]="notification.type === 'system'"
+            [class.bg-yellow-100]="notification.type === 'review'"
+          >
+            {{ notificationService.getNotificationIcon(notification.type) }}
+          </div>
+
+          <!-- Content -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1">
+                <h3 
+                  class="text-lg font-semibold text-gray-900 mb-1"
+                  [class.font-bold]="!notification.read"
+                >
+                  {{ notification.title }}
+                </h3>
+                <p 
+                  class="text-gray-700 leading-relaxed"
+                  [class.font-medium]="!notification.read"
+                >
+                  {{ notification.message }}
+                </p>
+                <div class="flex items-center space-x-4 mt-3">
+                  <span class="text-sm text-gray-500">
+                    {{ getTimeAgo(notification.createdAt) }}
+                  </span>
+                  <span 
+                    class="text-xs px-3 py-1 rounded-full font-medium"
+                    [class.bg-blue-100]="notification.type === 'order'"
+                    [class.text-blue-700]="notification.type === 'order'"
+                    [class.bg-pink-100]="notification.type === 'promotion'"
+                    [class.text-pink-700]="notification.type === 'promotion'"
+                    [class.bg-gray-100]="notification.type === 'system'"
+                    [class.text-gray-700]="notification.type === 'system'"
+                    [class.bg-yellow-100]="notification.type === 'review'"
+                    [class.text-yellow-700]="notification.type === 'review'"
+                  >
+                    {{ notification.type === 'order' ? 'Commande' : 
+                       notification.type === 'promotion' ? 'Promotion' :
+                       notification.type === 'review' ? 'Avis' : 'Système' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex items-center space-x-2">
+                <!-- Unread Indicator -->
+                <span 
+                  *ngIf="!notification.read"
+                  class="h-3 w-3 bg-indigo-600 rounded-full"
+                  title="Non lu"
+                ></span>
+
+                <!-- Delete Button -->
+                <button
+                  (click)="deleteNotification(notification.id); $event.stopPropagation()"
+                  class="p-2 text-gray-400 hover:text-red-600 rounded-full hover:bg-red-50 transition-colors"
+                  title="Supprimer"
+                >
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="mt-8 text-center">
+      <a 
+        routerLink="/account/dashboard" 
+        class="inline-flex items-center space-x-2 text-indigo-600 hover:text-indigo-800 font-semibold"
+      >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        <span>Retour au tableau de bord</span>
+      </a>
+    </div>
+  </div>
+</div>
+

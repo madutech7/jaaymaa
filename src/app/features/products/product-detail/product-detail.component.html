@@ -1,0 +1,781 @@
+<!-- Loading State -->
+<div *ngIf="isLoading" class="min-h-screen bg-white py-12">
+  <div class="container mx-auto px-4 md:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="space-y-4">
+        <div class="bg-gray-200 aspect-square rounded-lg animate-pulse"></div>
+        <div class="grid grid-cols-5 gap-2">
+          <div *ngFor="let i of [1,2,3,4,5]" class="bg-gray-200 aspect-square rounded-lg animate-pulse"></div>
+        </div>
+      </div>
+      <div class="space-y-6">
+        <div class="h-8 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+        <div class="h-4 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+        <div class="h-32 bg-gray-200 rounded animate-pulse"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Product Detail -->
+<div *ngIf="!isLoading && product" class="min-h-screen bg-white">
+  
+  <!-- Breadcrumb -->
+  <div class="border-b border-gray-200">
+    <div class="container mx-auto px-4 md:px-8 py-4 overflow-x-auto">
+      <nav class="flex items-center space-x-2 text-sm whitespace-nowrap">
+        <a routerLink="/" class="text-gray-600 hover:text-black transition-colors">Accueil</a>
+        <svg class="h-4 w-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+        <a routerLink="/products" class="text-gray-600 hover:text-black transition-colors">Produits</a>
+        <svg class="h-4 w-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+        <span class="text-gray-900 font-medium">{{ product.name }}</span>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-4 md:px-8 py-12">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+      
+      <!-- Image Gallery - Left Side -->
+      <div class="lg:sticky lg:top-24 lg:self-start">
+        <div class="flex flex-col-reverse md:flex-row gap-4">
+          
+          <!-- Thumbnails - Vertical on Desktop -->
+          <div class="flex md:flex-col gap-3 overflow-x-auto md:overflow-visible pb-2 md:pb-0" 
+               *ngIf="product.images.length > 1">
+            <button 
+              *ngFor="let image of product.images; let i = index"
+              (click)="selectImage(i)"
+              [class.ring-2]="selectedImage === i"
+              [class.ring-black]="selectedImage === i"
+              class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-gray-100 hover:opacity-75 transition-all cursor-pointer border-2 border-transparent">
+              <img [src]="image.url" [alt]="image.alt" class="h-full w-full object-cover">
+            </button>
+          </div>
+
+        <!-- Main Image -->
+          <div class="flex-1 relative aspect-square rounded-2xl overflow-hidden bg-gray-50 group">
+          <img 
+            [src]="getProductImage(product, selectedImage)" 
+            [alt]="product.name" 
+              class="h-full w-full object-cover transition-transform duration-700 ease-out cursor-zoom-in"
+              [class.scale-150]="isImageZoomed"
+              (mouseenter)="isImageZoomed = true"
+              (mouseleave)="isImageZoomed = false"
+          />
+          
+          <!-- Badges -->
+            <div class="absolute top-4 left-4 flex flex-col gap-2 z-10">
+              <span *ngIf="product.isNewArrival" class="badge-premium px-4 py-1.5 bg-black text-white text-xs font-bold rounded-full uppercase tracking-wide flex items-center gap-2">
+                <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+                Nouveau
+            </span>
+            <span *ngIf="product.compareAtPrice && product.compareAtPrice > product.price" 
+                    class="badge-premium px-4 py-1.5 bg-red-600 text-white text-xs font-bold rounded-full flex items-center gap-2">
+                <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                </svg>
+              -{{ getDiscountPercentage() }}%
+            </span>
+          </div>
+
+          <!-- Wishlist Button -->
+          <button 
+            (click)="toggleWishlist()"
+              class="absolute top-4 right-4 h-12 w-12 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-white hover:scale-110 transition-all z-10">
+            <svg class="h-6 w-6" 
+                 [class.text-red-500]="isInWishlist"
+                 [class.fill-current]="isInWishlist"
+                 [class.text-gray-900]="!isInWishlist"
+                 fill="none" 
+                 stroke="currentColor" 
+                 viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+          </button>
+        </div>
+        </div>
+      </div>
+
+      <!-- Product Info - Right Side -->
+      <div class="space-y-6 text-left">
+        
+        <!-- Title & Brand -->
+        <div class="text-left">
+          <p class="text-sm font-bold text-gray-600 uppercase tracking-wider mb-2" *ngIf="product.brand">{{ product.brand }}</p>
+          <h1 class="text-3xl md:text-4xl font-bold text-gray-900 leading-tight text-left">{{ product.name }}</h1>
+        </div>
+
+        <!-- Rating & Reviews -->
+        <div *ngIf="reviewStats && reviewStats.totalReviews > 0" class="flex items-center gap-3">
+          <div class="flex items-center">
+            <svg *ngFor="let star of getRatingArray(Math.round(reviewStats.averageRating))" 
+                 class="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+            </svg>
+          </div>
+          <span class="text-sm text-gray-600 font-medium">{{ reviewStats.averageRating | number:'1.1-1' }} ({{ reviewStats.totalReviews }} avis)</span>
+        </div>
+
+        <!-- Price -->
+          <div class="flex items-baseline gap-4">
+          <span class="text-3xl font-bold text-gray-900">{{ currencyService.formatPrice(product.price) }}</span>
+            <span *ngIf="product.compareAtPrice && product.compareAtPrice > product.price" 
+                class="text-xl text-gray-500 line-through">
+              {{ currencyService.formatPrice(product.compareAtPrice) }}
+            </span>
+        </div>
+
+        <!-- Description -->
+        <p class="text-base text-gray-700 leading-relaxed">{{ product.shortDescription }}</p>
+
+        <!-- Color Selector -->
+        <div *ngIf="availableColors.length > 0" class="space-y-3">
+          <div class="flex items-center justify-between">
+            <label class="block text-sm font-bold text-gray-900 uppercase tracking-wide">
+              Couleur: <span class="font-normal">{{ selectedColor || 'Sélectionnez' }}</span>
+            </label>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button 
+              *ngFor="let color of availableColors"
+              (click)="selectColor(color)"
+              [class.ring-2]="selectedColor === color.name"
+              [class.ring-black]="selectedColor === color.name"
+              [class.ring-offset-2]="selectedColor === color.name"
+              class="group relative h-12 w-12 rounded-full transition-all hover:scale-110"
+              [style.background-color]="color.value"
+              [class.border-2]="color.value === '#FFFFFF'"
+              [class.border-gray-300]="color.value === '#FFFFFF'"
+              [title]="color.name">
+              <span class="sr-only">{{ color.name }}</span>
+              <svg *ngIf="selectedColor === color.name" 
+                   class="absolute inset-0 m-auto h-6 w-6"
+                   [class.text-white]="color.value !== '#FFFFFF'"
+                   [class.text-black]="color.value === '#FFFFFF'"
+                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Size Selector -->
+        <div *ngIf="availableSizes.length > 0" class="space-y-3">
+          <div class="flex items-center justify-between">
+            <label class="block text-sm font-bold text-gray-900 uppercase tracking-wide">
+              Taille: <span class="font-normal">{{ selectedSize || 'Sélectionnez' }}</span>
+            </label>
+            <button 
+              (click)="toggleSizeGuide()"
+              class="text-sm font-medium text-gray-600 hover:text-black underline">
+              Guide des tailles
+            </button>
+          </div>
+          <div class="grid grid-cols-4 gap-2">
+            <button 
+              *ngFor="let size of availableSizes"
+              (click)="selectSize(size)"
+              [class.bg-black]="selectedSize === size"
+              [class.text-white]="selectedSize === size"
+              [class.border-black]="selectedSize === size"
+              [class.border-gray-300]="selectedSize !== size"
+              class="px-4 py-3 border-2 rounded-lg font-bold text-sm hover:border-black transition-all">
+              {{ size }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Stock Status -->
+        <div class="flex items-center gap-2">
+          <span *ngIf="product.stock > 0" class="flex items-center text-green-600 font-medium text-sm">
+            <span class="h-2.5 w-2.5 rounded-full bg-green-500 mr-2 animate-pulse"></span>
+            En stock
+          </span>
+          <span *ngIf="product.stock === 0" class="flex items-center text-red-600 font-medium text-sm">
+            <span class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2"></span>
+            Rupture de stock
+          </span>
+        </div>
+
+        <!-- Quantity Selector -->
+        <div>
+          <label class="block text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">Quantité</label>
+          <div class="inline-flex items-center border-2 border-gray-300 rounded-xl overflow-hidden hover:border-black transition-colors">
+            <button 
+              (click)="decreaseQuantity()"
+              [disabled]="quantity <= 1"
+              class="px-6 py-4 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/>
+              </svg>
+            </button>
+            <span class="px-8 py-4 font-bold text-lg border-x-2 border-gray-300 text-center min-w-[100px]">{{ quantity }}</span>
+            <button 
+              (click)="increaseQuantity()"
+              [disabled]="quantity >= product.stock"
+              class="px-6 py-4 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="space-y-4 pt-6">
+          <button 
+            (click)="addToCart()"
+            [disabled]="product.stock === 0"
+            class="btn-premium w-full flex items-center justify-center gap-3 px-8 py-5 bg-gradient-dark text-white rounded-full hover:shadow-2xl transition-all font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group">
+            <svg class="h-6 w-6 relative z-10 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+            </svg>
+            <span class="relative z-10">{{ product.stock === 0 ? 'Rupture de stock' : 'Ajouter au panier' }}</span>
+            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+          </button>
+
+          <button 
+            (click)="buyNow()"
+            [disabled]="product.stock === 0"
+            class="btn-premium w-full flex items-center justify-center gap-3 px-8 py-5 border-2 border-black text-black rounded-full hover:bg-black hover:text-white transition-all font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group">
+            <svg class="h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+            </svg>
+            <span>Acheter maintenant</span>
+          </button>
+        </div>
+
+        <!-- Features -->
+        <div class="pt-8 border-t border-gray-200 space-y-4">
+          <div class="flex items-center gap-4">
+            <div class="flex-shrink-0 h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center">
+              <svg class="h-6 w-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+            </svg>
+            </div>
+            <div>
+              <p class="font-bold text-gray-900">Livraison gratuite</p>
+              <p class="text-sm text-gray-600">Dès 50 000 FCFA d'achat</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="flex-shrink-0 h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center">
+              <svg class="h-6 w-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            </div>
+            <div>
+              <p class="font-bold text-gray-900">Retours gratuits</p>
+              <p class="text-sm text-gray-600">30 jours pour échanger</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="flex-shrink-0 h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center">
+              <svg class="h-6 w-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+            </div>
+            <div>
+              <p class="font-bold text-gray-900">Paiement sécurisé</p>
+              <p class="text-sm text-gray-600">Wave, Orange Money</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs Section -->
+    <div class="mt-20">
+      <div class="border-b border-gray-200">
+        <div class="flex gap-8 overflow-x-auto">
+          <button 
+            *ngFor="let tab of tabs" 
+            (click)="activeTab = tab.id"
+            [class.border-black]="activeTab === tab.id"
+            [class.text-gray-900]="activeTab === tab.id"
+            [class.border-transparent]="activeTab !== tab.id"
+            [class.text-gray-600]="activeTab !== tab.id"
+            class="pb-4 border-b-2 font-bold text-sm uppercase tracking-wider transition-colors hover:text-gray-900 whitespace-nowrap px-2">
+            {{ tab.label }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="py-12">
+        
+        <!-- Description Tab -->
+        <div *ngIf="activeTab === 'description'" class="max-w-4xl">
+          <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed whitespace-pre-line">{{ product.description }}</div>
+        </div>
+
+        <!-- Specifications Tab -->
+        <div *ngIf="activeTab === 'specifications'" class="max-w-4xl">
+          <div *ngIf="product.specifications && Object.keys(product.specifications).length > 0" class="space-y-0">
+            <div *ngFor="let spec of product.specifications | keyvalue" 
+                 class="flex items-center justify-between py-5 border-b border-gray-200 hover:bg-gray-50 transition-colors px-4 -mx-4">
+              <span class="font-bold text-gray-700 uppercase tracking-wide text-sm">{{ spec.key }}</span>
+              <span class="text-gray-900 font-medium">{{ spec.value }}</span>
+            </div>
+          </div>
+          <div *ngIf="!product.specifications || Object.keys(product.specifications).length === 0" 
+               class="text-center py-16 text-gray-500">
+            <svg class="h-16 w-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <p>Aucune spécification disponible</p>
+          </div>
+        </div>
+
+        <!-- Reviews Tab -->
+        <div *ngIf="activeTab === 'reviews'" class="max-w-4xl space-y-10">
+          
+          <!-- Reviews Summary -->
+          <div *ngIf="reviewStats && reviewStats.totalReviews > 0" class="bg-gray-50 rounded-2xl p-8 lg:p-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+              <!-- Average Rating -->
+              <div class="text-center">
+                <div class="text-6xl font-bold text-gray-900 mb-3">{{ reviewStats.averageRating | number:'1.1-1' }}</div>
+                <div class="flex items-center justify-center mb-3">
+                  <svg *ngFor="let star of getRatingArray(Math.round(reviewStats.averageRating))" 
+                       class="w-7 h-7 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                  </svg>
+                </div>
+                <p class="text-gray-600 font-medium">Basé sur {{ reviewStats.totalReviews }} avis</p>
+              </div>
+
+              <!-- Rating Distribution -->
+              <div class="space-y-3">
+                <div *ngFor="let rating of [5,4,3,2,1]" class="flex items-center space-x-4">
+                  <span class="text-sm font-bold text-gray-600 w-8">{{ rating }} ★</span>
+                  <div class="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
+                    <div class="h-full bg-yellow-400 transition-all duration-500" [style.width.%]="getRatingPercentage(rating)"></div>
+                  </div>
+                  <span class="text-sm font-medium text-gray-600 w-12 text-right">{{ reviewStats.ratingDistribution[rating] || 0 }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Write Review Button -->
+          <div class="flex justify-between items-center">
+            <h3 class="text-3xl font-bold text-gray-900">Avis clients</h3>
+            <button 
+              *ngIf="canReview"
+              (click)="toggleReviewForm()"
+              class="px-8 py-4 bg-black text-white rounded-full font-bold hover:bg-gray-900 transition-all hover:shadow-lg hover:scale-105"
+            >
+              {{ showReviewForm ? 'Annuler' : 'Écrire un avis' }}
+            </button>
+          </div>
+
+          <!-- Review Form -->
+          <div *ngIf="showReviewForm" class="bg-gray-50 rounded-2xl p-8 lg:p-10">
+            <h4 class="text-2xl font-bold text-gray-900 mb-8">Partagez votre expérience</h4>
+            <form (ngSubmit)="submitReview()" class="space-y-6">
+              <!-- Rating -->
+              <div>
+                <label class="block text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">Note *</label>
+                <div class="flex items-center space-x-2">
+                  <button
+                    *ngFor="let star of [1,2,3,4,5]"
+                    type="button"
+                    (click)="reviewFormData.rating = star"
+                    class="focus:outline-none transition-transform hover:scale-110"
+                  >
+                    <svg [class.text-yellow-400]="star <= reviewFormData.rating" 
+                         [class.text-gray-300]="star > reviewFormData.rating"
+                         class="w-12 h-12 fill-current transition-all" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Title -->
+              <div>
+                <label class="block text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">Titre *</label>
+                <input
+                  type="text"
+                  [(ngModel)]="reviewFormData.title"
+                  name="title"
+                  required
+                  placeholder="Résumez votre expérience"
+                  class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                />
+              </div>
+
+              <!-- Comment -->
+              <div>
+                <label class="block text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">Commentaire *</label>
+                <textarea
+                  [(ngModel)]="reviewFormData.comment"
+                  name="comment"
+                  required
+                  rows="6"
+                  placeholder="Partagez votre avis détaillé sur ce produit..."
+                  class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all resize-none"
+                ></textarea>
+              </div>
+
+              <!-- Submit -->
+              <button
+                type="submit"
+                class="w-full px-8 py-5 bg-black text-white rounded-full font-bold text-lg hover:bg-gray-900 transition-all hover:shadow-xl hover:scale-[1.02]"
+              >
+                Publier mon avis
+              </button>
+            </form>
+          </div>
+
+          <!-- Reviews List -->
+          <div *ngIf="reviews.length > 0" class="space-y-8">
+            <div *ngFor="let review of reviews" class="border-b border-gray-200 pb-8 last:border-0">
+              <div class="flex items-start justify-between mb-4">
+                <div>
+                  <h4 class="font-bold text-gray-900 mb-2 text-lg">{{ review.userName }}</h4>
+                  <div class="flex items-center gap-3">
+                    <div class="flex items-center">
+                      <svg *ngFor="let star of getRatingArray(review.rating)" 
+                           class="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                      </svg>
+                    </div>
+                    <span class="text-sm text-gray-500 font-medium">{{ review.createdAt | date:'dd MMMM yyyy':'':'fr' }}</span>
+                  </div>
+                </div>
+              </div>
+              <h5 class="font-bold text-gray-900 mb-3 text-lg">{{ review.title }}</h5>
+              <p class="text-gray-700 leading-relaxed">{{ review.comment }}</p>
+            </div>
+          </div>
+
+          <!-- No Reviews -->
+          <div *ngIf="reviews.length === 0" class="text-center py-16">
+            <svg class="h-24 w-24 mx-auto mb-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+            </svg>
+            <h3 class="text-2xl font-bold text-gray-900 mb-3">Aucun avis pour le moment</h3>
+            <p class="text-gray-600 mb-8">Soyez le premier à partager votre expérience</p>
+            <button 
+              *ngIf="canReview"
+              (click)="toggleReviewForm()"
+              class="px-8 py-4 bg-black text-white rounded-full font-bold hover:bg-gray-900 transition-all hover:shadow-lg hover:scale-105"
+            >
+              Écrire le premier avis
+            </button>
+          </div>
+        </div>
+
+        <!-- Shipping Tab -->
+        <div *ngIf="activeTab === 'shipping'" class="max-w-4xl space-y-6">
+          <div class="space-y-5">
+            <div class="p-8 border-2 border-gray-200 rounded-2xl hover:border-black transition-all">
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 h-14 w-14 rounded-full bg-black flex items-center justify-center">
+                  <svg class="h-7 w-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="font-bold text-gray-900 mb-2 text-xl">Livraison standard</h3>
+                  <p class="text-gray-600 mb-2 font-medium">Gratuite à partir de 50 000 FCFA</p>
+                  <p class="text-gray-900 font-bold">2-3 jours ouvrables</p>
+                </div>
+              </div>
+            </div>
+            <div class="p-8 border-2 border-gray-200 rounded-2xl hover:border-black transition-all">
+              <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 h-14 w-14 rounded-full bg-black flex items-center justify-center">
+                  <svg class="h-7 w-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="font-bold text-gray-900 mb-3 text-xl">Politique de retour</h3>
+                  <p class="text-gray-700 leading-relaxed">Retours gratuits sous 30 jours. Le produit doit être dans son état d'origine avec tous les accessoires et l'emballage intact.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recently Viewed Section -->
+    <div *ngIf="recentlyViewedProducts.length > 0" class="mt-16 md:mt-32 animate-fade-in">
+      <div class="flex items-center gap-3 md:gap-4 mb-8 md:mb-12">
+        <div class="h-10 w-10 md:h-14 md:w-14 rounded-xl md:rounded-2xl bg-black flex items-center justify-center shadow-xl flex-shrink-0">
+          <svg class="h-5 w-5 md:h-7 md:w-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-1">Récemment consultés</h2>
+          <p class="text-gray-600 text-sm md:text-lg font-medium">Continuez votre shopping</p>
+        </div>
+      </div>
+
+      <div class="relative group/carousel">
+        <!-- Gradient Fade Left -->
+        <div class="absolute left-0 top-0 bottom-0 w-8 md:w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+        <!-- Gradient Fade Right -->
+        <div class="absolute right-0 top-0 bottom-0 w-8 md:w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+        
+        <div class="recently-viewed-carousel flex gap-3 md:gap-6 overflow-x-auto pb-6 scrollbar-hide -mx-4 md:-mx-8 px-4 md:px-8">
+          <a *ngFor="let recentProduct of recentlyViewedProducts; let i = index" 
+             [routerLink]="['/products', recentProduct.slug]"
+             class="group flex-shrink-0 w-48 sm:w-56 md:w-64 lg:w-72 premium-card rounded-xl md:rounded-2xl p-3 md:p-4 bg-white"
+             [style.animation-delay]="(i * 0.1) + 's'">
+            <div class="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg md:rounded-xl overflow-hidden mb-3 md:mb-4 relative">
+              <img 
+                [src]="getProductImage(recentProduct)" 
+                [alt]="recentProduct.name" 
+                class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700"
+              />
+              <!-- Quick View Badge -->
+              <div class="absolute top-2 right-2 md:top-3 md:right-3 h-8 w-8 md:h-10 md:w-10 glass-effect rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg group-hover:scale-110">
+                <svg class="h-4 w-4 md:h-5 md:w-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                </svg>
+              </div>
+              
+              <!-- Recently Viewed Badge -->
+              <div class="absolute bottom-2 left-2 md:bottom-3 md:left-3 px-2 py-1 md:px-3 md:py-1.5 glass-effect rounded-full border border-white/20">
+                <span class="text-[10px] md:text-xs font-bold text-gray-900">Consulté récemment</span>
+              </div>
+            </div>
+            
+            <div class="space-y-1.5 md:space-y-2">
+              <h3 class="font-bold text-gray-900 line-clamp-2 group-hover:text-black transition-colors text-sm md:text-base">
+                {{ recentProduct.name }}
+              </h3>
+              <p class="text-[10px] md:text-xs text-gray-600 font-medium" *ngIf="recentProduct.brand">{{ recentProduct.brand }}</p>
+              <p class="price-display font-bold text-gray-900 text-base md:text-lg">{{ currencyService.formatPrice(recentProduct.price) }}</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Products -->
+    <div *ngIf="relatedProducts.length > 0" class="mt-16 md:mt-32 animate-fade-in">
+      <div class="flex items-center gap-3 md:gap-4 mb-8 md:mb-12">
+        <div class="h-10 w-10 md:h-14 md:w-14 rounded-xl md:rounded-2xl bg-black flex items-center justify-center shadow-xl flex-shrink-0">
+          <svg class="h-5 w-5 md:h-7 md:w-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-1">Vous pourriez aussi aimer</h2>
+          <p class="text-gray-600 text-sm md:text-lg font-medium">Découvrez notre sélection personnalisée</p>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+        <a *ngFor="let relatedProduct of relatedProducts; let i = index" 
+           [routerLink]="['/products', relatedProduct.slug]"
+           class="product-card-premium group"
+           [style.animation-delay]="(i * 0.08) + 's'">
+          <div class="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl md:rounded-2xl overflow-hidden mb-3 md:mb-4 relative shadow-lg border border-gray-200 group-hover:border-gray-400 transition-all">
+            <img 
+              [src]="getProductImage(relatedProduct)" 
+              [alt]="relatedProduct.name" 
+              class="h-full w-full object-cover group-hover:scale-115 transition-transform duration-700"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            
+            <!-- Quick Add Button -->
+            <div class="absolute bottom-2 left-2 right-2 md:bottom-4 md:left-4 md:right-4 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+              <button class="w-full px-2 py-2 md:px-4 md:py-3 glass-effect text-black rounded-lg md:rounded-xl font-bold hover:bg-white transition-all shadow-xl flex items-center justify-center gap-1 md:gap-2 text-xs md:text-sm">
+                <svg class="h-4 w-4 md:h-5 md:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                </svg>
+                <span class="hidden sm:inline">Ajouter</span>
+              </button>
+            </div>
+          </div>
+          
+          <div class="space-y-1.5 md:space-y-2">
+            <h3 class="font-bold text-gray-900 mb-1 line-clamp-2 group-hover:text-black transition-colors text-sm md:text-base">
+            {{ relatedProduct.name }}
+          </h3>
+            <p class="text-[10px] md:text-sm text-gray-600 font-medium" *ngIf="relatedProduct.brand">{{ relatedProduct.brand }}</p>
+            <p class="price-display font-bold text-gray-900 text-base md:text-lg">{{ currencyService.formatPrice(relatedProduct.price) }}</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Product Not Found -->
+<div *ngIf="!isLoading && !product" class="min-h-screen bg-white flex items-center justify-center">
+  <div class="text-center px-4">
+    <svg class="h-32 w-32 mx-auto mb-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    <h2 class="text-4xl font-bold text-gray-900 mb-4">Produit non trouvé</h2>
+    <p class="text-gray-600 mb-10 text-lg">Désolé, ce produit n'existe pas ou a été supprimé.</p>
+    <a routerLink="/products" 
+       class="inline-flex items-center px-10 py-5 bg-black text-white rounded-full hover:bg-gray-900 transition-all font-bold text-lg hover:shadow-xl hover:scale-105">
+      Retour au catalogue
+    </a>
+  </div>
+</div>
+
+<!-- Sticky Add to Cart Bar (shows on scroll) -->
+<div *ngIf="!isLoading && product && isSticky" 
+     class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-50 animate-slide-up">
+  <div class="container mx-auto px-4 md:px-8 py-4">
+    <div class="flex items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <img [src]="getProductImage(product, 0)" [alt]="product.name" class="h-16 w-16 object-cover rounded-lg">
+        <div>
+          <h3 class="font-bold text-gray-900 line-clamp-1">{{ product.name }}</h3>
+          <p class="text-lg font-bold text-gray-900">{{ currencyService.formatPrice(product.price) }}</p>
+        </div>
+      </div>
+      <button 
+        (click)="addToCart()"
+        [disabled]="product.stock === 0"
+        class="px-8 py-4 bg-black text-white rounded-full hover:bg-gray-900 transition-all font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg whitespace-nowrap">
+        Ajouter au panier
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Size Guide Modal -->
+<div *ngIf="showSizeGuide" 
+     class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in"
+     (click)="toggleSizeGuide()">
+  <div class="modal-glass rounded-3xl p-8 md:p-12 max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-slide-up" (click)="$event.stopPropagation()">
+    <div class="flex items-center justify-between mb-10">
+      <div class="flex items-center gap-4">
+        <div class="h-14 w-14 rounded-2xl bg-black flex items-center justify-center shadow-xl">
+          <svg class="h-7 w-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-3xl md:text-4xl font-bold text-gray-900 mb-1">Guide des tailles</h3>
+          <p class="text-gray-600 font-medium">Trouvez votre taille parfaite</p>
+        </div>
+      </div>
+      <button (click)="toggleSizeGuide()" class="h-12 w-12 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-all hover:scale-110">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="border-b-2 border-gray-900">
+            <th class="py-4 px-4 font-bold text-gray-900 uppercase tracking-wide">Taille</th>
+            <th class="py-4 px-4 font-bold text-gray-900 uppercase tracking-wide">Tour de poitrine (cm)</th>
+            <th class="py-4 px-4 font-bold text-gray-900 uppercase tracking-wide">Tour de taille (cm)</th>
+            <th class="py-4 px-4 font-bold text-gray-900 uppercase tracking-wide">Tour de hanches (cm)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+            <td class="py-4 px-4 font-bold">XS</td>
+            <td class="py-4 px-4">76-83</td>
+            <td class="py-4 px-4">58-65</td>
+            <td class="py-4 px-4">84-91</td>
+          </tr>
+          <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+            <td class="py-4 px-4 font-bold">S</td>
+            <td class="py-4 px-4">84-91</td>
+            <td class="py-4 px-4">66-73</td>
+            <td class="py-4 px-4">92-99</td>
+          </tr>
+          <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+            <td class="py-4 px-4 font-bold">M</td>
+            <td class="py-4 px-4">92-99</td>
+            <td class="py-4 px-4">74-81</td>
+            <td class="py-4 px-4">100-107</td>
+          </tr>
+          <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+            <td class="py-4 px-4 font-bold">L</td>
+            <td class="py-4 px-4">100-107</td>
+            <td class="py-4 px-4">82-89</td>
+            <td class="py-4 px-4">108-115</td>
+          </tr>
+          <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+            <td class="py-4 px-4 font-bold">XL</td>
+            <td class="py-4 px-4">108-115</td>
+            <td class="py-4 px-4">90-97</td>
+            <td class="py-4 px-4">116-123</td>
+          </tr>
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="py-4 px-4 font-bold">2XL</td>
+            <td class="py-4 px-4">116-123</td>
+            <td class="py-4 px-4">98-105</td>
+            <td class="py-4 px-4">124-131</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-10 p-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-100">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center">
+          <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <h4 class="text-xl font-bold text-gray-900">Comment mesurer correctement ?</h4>
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="flex items-start gap-3 p-4 bg-white rounded-xl shadow-sm">
+          <div class="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-dark flex items-center justify-center">
+            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <div>
+            <p class="font-bold text-gray-900 mb-1">Poitrine</p>
+            <p class="text-sm text-gray-600">Mesurez horizontalement au point le plus fort</p>
+          </div>
+        </div>
+        
+        <div class="flex items-start gap-3 p-4 bg-white rounded-xl shadow-sm">
+          <div class="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-dark flex items-center justify-center">
+            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <div>
+            <p class="font-bold text-gray-900 mb-1">Taille</p>
+            <p class="text-sm text-gray-600">Mesurez au niveau de la taille naturelle</p>
+          </div>
+        </div>
+        
+        <div class="flex items-start gap-3 p-4 bg-white rounded-xl shadow-sm">
+          <div class="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-dark flex items-center justify-center">
+            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <div>
+            <p class="font-bold text-gray-900 mb-1">Hanches</p>
+            <p class="text-sm text-gray-600">Mesurez horizontalement au point le plus fort</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

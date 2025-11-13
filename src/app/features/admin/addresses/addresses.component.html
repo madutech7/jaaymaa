@@ -1,0 +1,129 @@
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Gestion des Adresses</h1>
+      <p class="text-gray-600 mt-2">{{ addresses.length }} adresse(s) au total</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white rounded-lg shadow-md p-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Search -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Rechercher</label>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchChange()"
+          placeholder="Email, nom, ville..."
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        />
+      </div>
+
+      <!-- Type Filter -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
+        <select 
+          [(ngModel)]="filterType"
+          (ngModelChange)="onFilterChange()"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        >
+          <option value="all">Toutes</option>
+          <option value="shipping">Livraison</option>
+          <option value="billing">Facturation</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="bg-white rounded-lg shadow-md p-12 text-center">
+    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+    <p class="mt-4 text-gray-600">Chargement...</p>
+  </div>
+
+  <!-- Addresses Table -->
+  <div *ngIf="!isLoading" class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div *ngIf="filteredAddresses.length === 0" class="p-12 text-center">
+      <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+      </svg>
+      <p class="text-gray-600">Aucune adresse trouvée</p>
+    </div>
+
+    <div *ngIf="filteredAddresses.length > 0" class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Adresse</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ville</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pays</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Téléphone</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Par défaut</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let address of filteredAddresses" class="hover:bg-gray-50">
+            <!-- Client -->
+            <td class="px-6 py-4">
+              <div>
+                <div class="text-sm font-medium text-gray-900">{{ address.userName }}</div>
+                <div class="text-sm text-gray-500">{{ address.userEmail }}</div>
+              </div>
+            </td>
+
+            <!-- Type -->
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span [class]="getTypeBadgeClass(address.type)" class="px-2 py-1 text-xs font-semibold rounded-full">
+                {{ getTypeLabel(address.type) }}
+              </span>
+            </td>
+
+            <!-- Address -->
+            <td class="px-6 py-4">
+              <div class="text-sm text-gray-900">{{ address.firstName }} {{ address.lastName }}</div>
+              <div class="text-sm text-gray-500">{{ address.street }}</div>
+            </td>
+
+            <!-- City -->
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              {{ address.city }}, {{ address.state }}
+            </td>
+
+            <!-- Country -->
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              {{ address.country }}
+            </td>
+
+            <!-- Phone -->
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              {{ address.phone }}
+            </td>
+
+            <!-- Default -->
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span *ngIf="address.isDefault" class="text-green-600 font-semibold">✓</span>
+              <span *ngIf="!address.isDefault" class="text-gray-300">-</span>
+            </td>
+
+            <!-- Actions -->
+            <td class="px-6 py-4 whitespace-nowrap text-sm">
+              <button 
+                (click)="deleteAddress(address.id)"
+                class="text-red-600 hover:text-red-900 font-medium"
+              >
+                Supprimer
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+

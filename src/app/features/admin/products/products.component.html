@@ -1,0 +1,443 @@
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Gestion des Produits</h1>
+      <p class="text-gray-600 mt-2">
+        {{ products.length }} produit(s) au total
+        <span *ngIf="selectedProducts.size > 0" class="ml-4 text-indigo-600 font-semibold">
+          • {{ selectedProducts.size }} sélectionné(s)
+        </span>
+      </p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <button 
+        *ngIf="selectedProducts.size > 0"
+        (click)="exportSelectedToCSV()"
+        class="px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <span class="hidden sm:inline">Export sélection</span>
+      </button>
+      <button 
+        *ngIf="selectedProducts.size > 0"
+        (click)="deleteSelectedProducts()"
+        class="px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+        </svg>
+        <span class="hidden sm:inline">Supprimer ({{ selectedProducts.size }})</span>
+        <span class="sm:hidden">{{ selectedProducts.size }}</span>
+      </button>
+      <button 
+        (click)="exportToCSV()"
+        class="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+        </svg>
+        <span class="hidden sm:inline">Export CSV</span>
+      </button>
+      <button 
+        (click)="openCreateModal()"
+        class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center space-x-2"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        <span>Nouveau Produit</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white rounded-lg shadow-md p-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Rechercher</label>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery"
+          placeholder="Nom ou SKU..."
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Catégorie</label>
+        <select 
+          [(ngModel)]="selectedCategory"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        >
+          <option value="">Toutes les catégories</option>
+          <option *ngFor="let category of categories" [value]="category.id">
+            {{ category.name }}
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
+        <select 
+          [(ngModel)]="selectedStatus"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        >
+          <option value="">Tous</option>
+          <option value="active">Actif</option>
+          <option value="draft">Brouillon</option>
+          <option value="archived">Archivé</option>
+        </select>
+      </div>
+
+      <div class="flex items-end">
+        <button 
+          (click)="searchQuery = ''; selectedCategory = ''; selectedStatus = ''"
+          class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+        >
+          Réinitialiser
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products Table -->
+  <div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div *ngIf="isLoading" class="p-12 text-center">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <p class="mt-4 text-gray-600">Chargement...</p>
+    </div>
+
+    <div *ngIf="!isLoading && filteredProducts.length === 0" class="p-12 text-center">
+      <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+      </svg>
+      <p class="text-gray-600">Aucun produit trouvé</p>
+    </div>
+
+    <div *ngIf="!isLoading && filteredProducts.length > 0" class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left">
+              <input 
+                type="checkbox" 
+                [(ngModel)]="selectAll"
+                (change)="toggleSelectAll()"
+                class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer"
+                title="Sélectionner tout"
+              />
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégorie</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let product of filteredProducts" class="hover:bg-gray-50" [class.bg-indigo-50]="isProductSelected(product.id)">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <input 
+                type="checkbox" 
+                [checked]="isProductSelected(product.id)"
+                (change)="toggleProductSelection(product.id)"
+                class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer"
+              />
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <img [src]="getProductImage(product)" [alt]="product.name" class="h-10 w-10 rounded object-cover">
+                <div class="ml-4">
+                  <div class="text-sm font-medium text-gray-900">{{ product.name }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {{ product.sku }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {{ product.category?.name || 'N/A' }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              {{ currencyService.formatPrice(product.price) }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span [class]="product.stock <= 5 ? 'text-red-600' : 'text-gray-900'" class="text-sm font-medium">
+                {{ product.stock }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span [class]="getStatusBadgeClass(product.status)" class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
+                {{ product.status === 'active' ? 'Actif' : 'Brouillon' }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <a 
+                [routerLink]="['/admin/products', product.id]"
+                class="text-blue-600 hover:text-blue-900 mr-3 inline-block"
+                title="Voir les détails"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+              </a>
+              <button 
+                (click)="openEditModal(product)"
+                class="text-indigo-600 hover:text-indigo-900 mr-3"
+                title="Modifier"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+              </button>
+              <button 
+                (click)="deleteProduct(product)"
+                [disabled]="isDeleting || deletingProductId === product.id"
+                class="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+                title="Supprimer"
+              >
+                <svg *ngIf="deletingProductId !== product.id" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                <svg *ngIf="deletingProductId === product.id" class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Product Modal -->
+<div *ngIf="showModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto">
+  <div class="bg-white rounded-lg max-w-4xl w-full p-6 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-gray-900">
+        {{ editMode ? 'Modifier le produit' : 'Nouveau produit' }}
+      </h2>
+      <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <form (ngSubmit)="saveProduct()" class="space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Nom du produit *</label>
+          <input 
+            type="text" 
+            [(ngModel)]="currentProduct.name"
+            name="name"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">SKU *</label>
+          <input 
+            type="text" 
+            [(ngModel)]="currentProduct.sku"
+            name="sku"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Catégorie *</label>
+          <select 
+            [(ngModel)]="currentProduct.category_id"
+            name="category"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option value="">Sélectionner une catégorie</option>
+            <option *ngFor="let category of categories" [value]="category.id">
+              {{ category.name }}
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Prix (FCFA) *</label>
+          <input 
+            type="number" 
+            [(ngModel)]="currentProduct.price"
+            name="price"
+            step="0.01"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Prix comparé (FCFA)</label>
+          <input 
+            type="number" 
+            [(ngModel)]="currentProduct.compare_at_price"
+            name="comparePrice"
+            step="0.01"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Stock *</label>
+          <input 
+            type="number" 
+            [(ngModel)]="currentProduct.stock"
+            name="stock"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Marque</label>
+          <input 
+            type="text" 
+            [(ngModel)]="currentProduct.brand"
+            name="brand"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          />
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Description courte</label>
+          <textarea 
+            [(ngModel)]="currentProduct.short_description"
+            name="shortDescription"
+            rows="2"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          ></textarea>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+          <textarea 
+            [(ngModel)]="currentProduct.description"
+            name="description"
+            rows="4"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          ></textarea>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
+          <select 
+            [(ngModel)]="currentProduct.status"
+            name="status"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option value="draft">Brouillon</option>
+            <option value="active">Actif</option>
+            <option value="archived">Archivé</option>
+          </select>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">URLs des images (une par ligne)</label>
+          <textarea 
+            [(ngModel)]="imageUrlsText"
+            name="images"
+            rows="3"
+            placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          ></textarea>
+          <p class="text-xs text-gray-500 mt-1">Entrez une URL d'image par ligne</p>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Tags (séparés par des virgules)</label>
+          <input 
+            type="text" 
+            [(ngModel)]="tagsText"
+            name="tags"
+            placeholder="électronique, accessoire, promotion"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          />
+          <p class="text-xs text-gray-500 mt-1">Séparez les tags par des virgules</p>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Spécifications (JSON format)</label>
+          <textarea 
+            [(ngModel)]="specificationsText"
+            name="specifications"
+            rows="5"
+            placeholder='{{ "{" }}"Marque": "Samsung", "Couleur": "Noir", "Garantie": "2 ans"{{ "}" }}'
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono text-sm"
+          ></textarea>
+          <p class="text-xs text-gray-500 mt-1">Format JSON : {{ "{" }}"clé": "valeur", "clé2": "valeur2"{{ "}" }}</p>
+        </div>
+
+        <div class="md:col-span-2 grid grid-cols-3 gap-4">
+          <label class="flex items-center space-x-2">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="currentProduct.is_featured"
+              name="featured"
+              class="rounded text-indigo-600 focus:ring-indigo-500"
+            />
+            <span class="text-sm text-gray-700">Produit en vedette</span>
+          </label>
+
+          <label class="flex items-center space-x-2">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="currentProduct.is_new_arrival"
+              name="newArrival"
+              class="rounded text-indigo-600 focus:ring-indigo-500"
+            />
+            <span class="text-sm text-gray-700">Nouvelle arrivée</span>
+          </label>
+
+          <label class="flex items-center space-x-2">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="currentProduct.is_best_seller"
+              name="bestSeller"
+              class="rounded text-indigo-600 focus:ring-indigo-500"
+            />
+            <span class="text-sm text-gray-700">Meilleure vente</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-4 pt-6 border-t">
+        <button 
+          type="button"
+          (click)="closeModal()"
+          class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+        >
+          Annuler
+        </button>
+        <button 
+          type="submit"
+          [disabled]="isSaving"
+          class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+        >
+          <svg *ngIf="isSaving" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>{{ isSaving ? (editMode ? 'Mise à jour...' : 'Création...') : (editMode ? 'Mettre à jour' : 'Créer') }}</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+

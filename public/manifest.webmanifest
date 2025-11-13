@@ -1,0 +1,35 @@
+{
+  "name": "JAAYMAA - Shopping Premium",
+  "short_name": "JAAYMAA",
+  "description": "Votre destination premium pour les produits de qualité au Sénégal. Livraison rapide, service client exceptionnel.",
+  "theme_color": "#667eea",
+  "background_color": "#f5f7fa",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "scope": "./",
+  "start_url": "./",
+  "lang": "fr",
+  "categories": ["shopping", "business", "lifestyle"],
+  "screenshots": [
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "icons": [
+    {
+      "src": "assets/icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

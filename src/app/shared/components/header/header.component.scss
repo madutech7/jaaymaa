@@ -1,0 +1,151 @@
+// ============================================
+// HEADER MODERN STYLES - Professional
+// ============================================
+
+// Smooth Header Shadow on Scroll
+header {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &.scrolled {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  }
+}
+
+// Scale In Animation for Dropdown
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+// Search Input Enhanced
+input[type="text"] {
+  &::placeholder {
+    font-weight: 500;
+    color: #9ca3af;
+  }
+  
+  &:focus::placeholder {
+    opacity: 0.6;
+  }
+}
+
+// Mobile Menu Slide In
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+// Underline Animation for Nav Links
+.nav-link {
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: currentColor;
+    transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  &:hover::after,
+  &.active::after {
+    width: 100%;
+  }
+}
+
+// Badge Pulse
+@keyframes badge-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.badge-hot {
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+
+// Mobile Menu Item Hover
+.mobile-menu-item {
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 60%;
+    background: black;
+    transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  &:hover::before {
+    width: 4px;
+  }
+}
+
+// Cart Badge Animation
+@keyframes cart-badge-pop {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.cart-badge {
+  animation: cart-badge-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+// Responsive
+@media (max-width: 1024px) {
+  .mobile-menu-item {
+    &::before {
+      display: none;
+    }
+  }
+}
+
+// Accessibility
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

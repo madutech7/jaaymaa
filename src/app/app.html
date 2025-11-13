@@ -1,0 +1,27 @@
+<!-- Toast Notifications (Global) -->
+<app-toast></app-toast>
+
+<!-- Confirmation Modal (Global) -->
+<app-confirmation-modal></app-confirmation-modal>
+
+<!-- Scroll Tracking -->
+<app-scroll-tracker></app-scroll-tracker>
+
+<!-- Error Tracking -->
+<app-error-tracker></app-error-tracker>
+
+<!-- Routes publiques avec header et footer -->
+<div *ngIf="!isAdminRoute" class="flex flex-col min-h-screen">
+  <app-header></app-header>
+  
+  <main class="flex-grow -mt-px">
+    <router-outlet></router-outlet>
+  </main>
+  
+  <app-footer></app-footer>
+</div>
+
+<!-- Routes admin sans header ni footer -->
+<div *ngIf="isAdminRoute" class="min-h-screen">
+  <router-outlet></router-outlet>
+</div>

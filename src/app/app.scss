@@ -1,0 +1,22 @@
+// App component styles
+
+// Remove any gap between header and content
+main {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+// Ensure sections start immediately after header
+section:first-child {
+  margin-top: 0 !important;
+}
+
+// Force remove any border or gap from header
+app-header {
+  border-bottom: none !important;
+}
+
+// Ensure hero section connects perfectly with header
+.hero-section {
+  margin-top: -1px !important;
+}

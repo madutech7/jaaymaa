@@ -1,0 +1,212 @@
+<div class="bg-white min-h-screen py-8 md:py-12">
+  <div class="container mx-auto px-4 md:px-8">
+    <h1 class="text-3xl md:text-4xl font-bold mb-8">Panier</h1>
+
+    <!-- Empty Cart -->
+    <div *ngIf="cart && cart.items.length === 0" class="text-center py-16">
+      <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+      </svg>
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">Votre panier est vide</h2>
+      <p class="text-gray-600 mb-8">Commencez vos achats dès maintenant!</p>
+      <a routerLink="/products" class="inline-block bg-black text-white px-8 py-4 rounded-full hover:bg-gray-900 transition font-medium">
+        Découvrir nos produits
+      </a>
+    </div>
+
+    <!-- Cart with Items -->
+    <div *ngIf="cart && cart.items.length > 0" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Cart Items -->
+      <div class="lg:col-span-2 space-y-4">
+        <div *ngFor="let item of cart.items" class="border-b border-gray-200 pb-6">
+          <div class="flex gap-4">
+            <!-- Product Image -->
+            <div class="w-32 h-32 flex-shrink-0">
+              <img 
+                [src]="item.product.image" 
+                [alt]="item.product.name" 
+                class="w-full h-full object-cover rounded-lg"
+              />
+            </div>
+            
+            <!-- Product Info -->
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between mb-2">
+                <div class="flex-1">
+                  <a [routerLink]="['/products', item.product.slug]" 
+                     class="text-base font-medium hover:text-gray-600 transition block">
+                    {{ item.product.name }}
+                  </a>
+                  <p class="text-sm text-gray-600 mt-1">{{ currencyService.formatPrice(item.price) }}</p>
+                  
+                  <div *ngIf="item.selectedVariant && item.selectedVariant.length > 0" class="text-sm text-gray-600 mt-2">
+                    <span *ngFor="let variant of item.selectedVariant" class="mr-2">
+                      {{ variant.name }}: {{ variant.value }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Price (Desktop) -->
+                <div class="hidden md:block text-right ml-4">
+                  <p class="text-base font-medium">{{ currencyService.formatPrice(item.price * item.quantity) }}</p>
+                </div>
+              </div>
+
+              <!-- Quantity Controls -->
+              <div class="flex items-center justify-between mt-4">
+                <div class="flex items-center border border-gray-300 rounded-lg">
+                  <button 
+                    (click)="updateQuantity(item.id, item.quantity - 1)"
+                    [disabled]="item.quantity <= 1"
+                    class="px-4 py-2 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                    </svg>
+                  </button>
+                  <span class="px-6 py-2 font-medium min-w-[60px] text-center">{{ item.quantity }}</span>
+                  <button 
+                    (click)="updateQuantity(item.id, item.quantity + 1)"
+                    [disabled]="item.quantity >= item.product.stock"
+                    class="px-4 py-2 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Remove Button -->
+                <button 
+                  (click)="removeItem(item.id)"
+                  class="flex items-center gap-2 text-gray-600 hover:text-black transition text-sm font-medium"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                  <span class="hidden sm:inline">Supprimer</span>
+                </button>
+              </div>
+
+              <!-- Price (Mobile) -->
+              <div class="md:hidden mt-4 text-right">
+                <p class="text-base font-medium">{{ currencyService.formatPrice(item.price * item.quantity) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="lg:col-span-1">
+        <div class="border border-gray-200 rounded-lg p-6 lg:sticky lg:top-24">
+          <h2 class="text-xl font-bold mb-6">Résumé</h2>
+
+          <!-- Coupon Code -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-900 mb-2 uppercase">Code promo</label>
+            <div class="flex gap-2">
+              <input
+                type="text"
+                [(ngModel)]="couponCode"
+                placeholder="VOTRE CODE"
+                [disabled]="!!cart.couponCode"
+                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black disabled:bg-gray-100"
+              />
+              <button 
+                *ngIf="!cart.couponCode"
+                (click)="applyCoupon()"
+                [disabled]="isApplyingCoupon"
+                class="bg-black text-white px-4 py-3 rounded-lg hover:bg-gray-900 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              >
+                <svg *ngIf="isApplyingCoupon" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>{{ isApplyingCoupon ? 'Application...' : 'Appliquer' }}</span>
+              </button>
+              <button 
+                *ngIf="cart.couponCode"
+                (click)="removeCoupon()"
+                class="bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 transition font-medium"
+              >
+                Retirer
+              </button>
+            </div>
+            <p *ngIf="cart.couponCode" class="text-sm text-green-600 mt-2">
+              ✓ Code "{{ cart.couponCode }}" appliqué
+            </p>
+          </div>
+
+          <!-- Summary Details -->
+          <div class="space-y-3 mb-6 pb-6 border-b border-gray-200">
+            <div class="flex justify-between text-gray-700">
+              <span>Sous-total</span>
+              <span class="font-medium">{{ currencyService.formatPrice(cart.subtotal) }}</span>
+            </div>
+            
+            <div *ngIf="cart.discount > 0" class="flex justify-between text-green-600">
+              <span>Réduction</span>
+              <span class="font-medium">-{{ currencyService.formatPrice(cart.discount) }}</span>
+            </div>
+
+            <div class="flex justify-between text-gray-700">
+              <span>Livraison</span>
+              <span *ngIf="cart.shipping > 0" class="font-medium">{{ currencyService.formatPrice(cart.shipping) }}</span>
+              <span *ngIf="cart.shipping === 0" class="text-green-600 font-medium">Gratuite</span>
+            </div>
+
+          </div>
+
+          <!-- Total -->
+          <div class="flex justify-between text-lg font-bold mb-6">
+            <span>Total</span>
+            <span>{{ currencyService.formatPrice(cart.total) }}</span>
+          </div>
+
+          <!-- Free Shipping Message -->
+          <div *ngIf="cart.subtotal < 50000" class="bg-gray-100 rounded-lg p-3 mb-6 text-sm text-gray-700">
+            Ajoutez {{ currencyService.formatPrice(50000 - cart.subtotal) }} pour la livraison gratuite
+          </div>
+
+          <!-- Checkout Button -->
+          <a 
+            routerLink="/checkout"
+            class="block w-full bg-black text-white text-center py-4 rounded-full hover:bg-gray-900 transition font-medium mb-4"
+          >
+            Procéder au paiement
+          </a>
+
+          <a 
+            routerLink="/products"
+            class="block w-full text-center text-black hover:text-gray-600 font-medium py-2"
+          >
+            Continuer mes achats
+          </a>
+
+          <!-- Trust Badges -->
+          <div class="mt-6 pt-6 border-t border-gray-200 space-y-3">
+            <div class="flex items-start gap-2 text-sm text-gray-700">
+              <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Paiement 100% sécurisé</span>
+            </div>
+            <div class="flex items-start gap-2 text-sm text-gray-700">
+              <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Livraison rapide 24-48h</span>
+            </div>
+            <div class="flex items-start gap-2 text-sm text-gray-700">
+              <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Retours gratuits 30 jours</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

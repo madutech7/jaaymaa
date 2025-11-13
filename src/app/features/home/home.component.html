@@ -1,0 +1,585 @@
+<!-- Hero Slider Section -->
+<section class="slider-section">
+  <div class="slider-container" 
+       (mouseenter)="pauseAutoSlide()" 
+       (mouseleave)="resumeAutoSlide()">
+    <div class="slide">
+      <div *ngFor="let slide of sliderItems; let i = index" 
+           class="item"
+           [style.background-image]="'url(' + slide.image + ')'">
+        <!-- Enhanced Gradient Overlay -->
+        <div class="gradient-overlay"></div>
+        
+        <!-- Content Container -->
+        <div class="content">
+          <div class="content-inner">
+            <!-- Badge -->
+            <div class="content-badge">
+              <span class="badge-text">Collection Exclusive</span>
+            </div>
+            
+            <!-- Title -->
+            <div class="name">{{ slide.name }}</div>
+            
+            <!-- Description -->
+            <div class="des">{{ slide.description }}</div>
+            
+            <!-- CTA Button -->
+            <button class="cta-button" (click)="navigateToSlide(slide.link)">
+              <span>Découvrir</span>
+              <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Enhanced Navigation Buttons -->
+    <div class="button">
+      <button class="nav-button prev" (click)="prevSlide()" aria-label="Slide précédent">
+        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+      <button class="nav-button next" (click)="nextSlide()" aria-label="Slide suivant">
+        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Slide Indicators -->
+    <div class="slide-indicators">
+      <span *ngFor="let slide of sliderItems; let i = index" 
+            class="indicator"
+            [class.active]="i === 0"
+            (click)="goToSlide(i)"></span>
+    </div>
+  </div>
+</section>
+
+<!-- Marquee Section - Professional Touch -->
+<section class="bg-white border-y border-gray-200 py-6 overflow-hidden">
+  <div class="marquee-container">
+    <div class="marquee-content">
+      <span class="inline-flex items-center gap-12 text-sm font-bold uppercase tracking-widest whitespace-nowrap">
+        <span>Livraison Gratuite dès 50 000 FCFA</span>
+        <span class="text-gray-300">•</span>
+        <span>Retours Gratuits 30 Jours</span>
+        <span class="text-gray-300">•</span>
+        <span>Paiement 100% Sécurisé</span>
+        <span class="text-gray-300">•</span>
+        <span>Support Client 24/7</span>
+        <span class="text-gray-300">•</span>
+        <span>Livraison Gratuite dès 50 000 FCFA</span>
+        <span class="text-gray-300">•</span>
+        <span>Retours Gratuits 30 Jours</span>
+        <span class="text-gray-300">•</span>
+        <span>Paiement 100% Sécurisé</span>
+        <span class="text-gray-300">•</span>
+        <span>Support Client 24/7</span>
+        <span class="text-gray-300">•</span>
+      </span>
+            </div>
+          </div>
+</section>
+
+<!-- Stats Section - Modern Grid -->
+<section class="bg-black text-white py-16 md:py-24">
+  <div class="container mx-auto px-8">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+      <div class="text-center space-y-2 group cursor-pointer">
+        <div class="text-5xl md:text-6xl font-black group-hover:scale-110 transition-transform">1M+</div>
+        <div class="h-0.5 w-16 bg-white/20 mx-auto group-hover:w-24 transition-all"></div>
+        <div class="text-xs md:text-sm text-gray-400 uppercase tracking-widest font-bold">Produits Premium</div>
+            </div>
+      <div class="text-center space-y-2 group cursor-pointer">
+        <div class="text-5xl md:text-6xl font-black group-hover:scale-110 transition-transform">50K+</div>
+        <div class="h-0.5 w-16 bg-white/20 mx-auto group-hover:w-24 transition-all"></div>
+        <div class="text-xs md:text-sm text-gray-400 uppercase tracking-widest font-bold">Clients Fidèles</div>
+          </div>
+      <div class="text-center space-y-2 group cursor-pointer">
+        <div class="text-5xl md:text-6xl font-black group-hover:scale-110 transition-transform">4.9★</div>
+        <div class="h-0.5 w-16 bg-white/20 mx-auto group-hover:w-24 transition-all"></div>
+        <div class="text-xs md:text-sm text-gray-400 uppercase tracking-widest font-bold">Excellence</div>
+      </div>
+      <div class="text-center space-y-2 group cursor-pointer">
+        <div class="text-5xl md:text-6xl font-black group-hover:scale-110 transition-transform">24/7</div>
+        <div class="h-0.5 w-16 bg-white/20 mx-auto group-hover:w-24 transition-all"></div>
+        <div class="text-xs md:text-sm text-gray-400 uppercase tracking-widest font-bold">Assistance</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Products - Professional Grid -->
+<section id="products" class="py-16 md:py-24 bg-white">
+  <div class="container mx-auto px-8">
+    <!-- Section Header Pro -->
+    <div class="mb-16">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <span class="inline-block px-4 py-1.5 bg-black text-white text-xs font-black uppercase tracking-widest rounded-full mb-4">
+            Collection Exclusive
+        </span>
+          <h2 class="text-3xl md:text-5xl lg:text-6xl font-black text-black uppercase leading-none">
+            Produits<br/>
+            <span class="text-gray-400">d'Exception</span>
+        </h2>
+        </div>
+        <a routerLink="/products" class="hidden lg:flex items-center gap-2 px-6 py-3 border-2 border-black rounded-full font-bold hover:bg-black hover:text-white transition-all group">
+          <span>Voir tout</span>
+          <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+          </svg>
+        </a>
+      </div>
+      <div class="h-px bg-gradient-to-r from-black via-gray-300 to-transparent"></div>
+      </div>
+
+    <!-- Loading State -->
+        <ng-container *ngIf="isLoading">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div *ngFor="let i of [1,2,3,4,5,6,7,8]" class="animate-pulse">
+          <div class="bg-gray-200 aspect-square"></div>
+          <div class="mt-4 h-4 bg-gray-200 rounded"></div>
+          <div class="mt-2 h-4 bg-gray-200 rounded w-1/2"></div>
+        </div>
+          </div>
+        </ng-container>
+        
+    <!-- Products Grid Pro -->
+    <div *ngIf="!isLoading" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+        <div *ngFor="let product of featuredProducts; let i = index" 
+           class="group opacity-0 animate-fade-in-up"
+           [style.animation-delay.ms]="i * 80">
+            <a [routerLink]="['/products', product.slug]" 
+               (click)="onProductClick(product)"
+               class="block">
+          <!-- Product Image Container Pro -->
+          <div class="relative aspect-square bg-gray-50 overflow-hidden mb-5 group-hover:shadow-2xl transition-all duration-500">
+                  <app-lazy-image 
+                    [src]="getProductImage(product)" 
+                    [alt]="product.name"
+              imageClass="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    rootMargin="100px">
+                  </app-lazy-image>
+                  
+            <!-- Overlay Pro -->
+            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
+            
+            <!-- Badges Minimalistes -->
+            <div class="absolute top-4 left-4 flex flex-col gap-2">
+            <span *ngIf="product.isNewArrival" 
+                  class="px-3 py-1.5 bg-black text-white text-[10px] font-black rounded-sm uppercase tracking-widest">
+              Nouveau
+              </span>
+            <span *ngIf="product.compareAtPrice" 
+                  class="px-3 py-1.5 bg-white text-black text-[10px] font-black rounded-sm uppercase tracking-widest">
+              Promo
+              </span>
+              </div>
+
+            <!-- Quick View Overlay -->
+            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+              <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 space-y-3 w-full px-4">
+                <button class="w-full py-3.5 bg-white text-black rounded-sm font-black text-sm uppercase tracking-wider hover:bg-gray-100 transition-colors">
+                  Ajouter au panier
+                    </button>
+                <button class="w-full py-3.5 border-2 border-white text-white rounded-sm font-black text-sm uppercase tracking-wider hover:bg-white hover:text-black transition-all">
+                  Aperçu rapide
+                    </button>
+                </div>
+              </div>
+            </div>
+
+          <!-- Product Info Pro -->
+          <div class="space-y-2">
+            <!-- Category Tag -->
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                {{ product.brand || 'JAAYMAA' }}
+              </span>
+              <span *ngIf="product.isNewArrival" class="text-[10px] font-black text-black uppercase tracking-widest">• Nouveauté</span>
+              </div>
+
+                  <!-- Product Name -->
+            <h3 class="text-sm md:text-base font-bold text-black leading-tight min-h-[40px] line-clamp-2">
+                {{ product.name }}
+              </h3>
+
+            <!-- Price Professional -->
+            <div class="flex items-baseline gap-3 pt-1">
+              <span class="text-lg md:text-xl font-black text-black">
+                {{ currencyService.formatPrice(product.price) }}
+              </span>
+              <span *ngIf="product.compareAtPrice" class="text-sm text-gray-400 line-through font-medium">
+                        {{ currencyService.formatPrice(product.compareAtPrice) }}
+                      </span>
+                    </div>
+          </div>
+        </a>
+                  </div>
+              </div>
+            </div>
+</section>
+
+<!-- Full Width Split Banner - Professional -->
+<section class="py-0 bg-white">
+  <div class="grid grid-cols-1 md:grid-cols-2">
+    <!-- Left Banner -->
+    <div class="group relative aspect-square md:aspect-[4/5] overflow-hidden">
+      <img src="https://images.unsplash.com/photo-1468436139062-f60a71c5c892?w=1000&h=1250&fit=crop&q=80" 
+           alt="Tech" 
+           class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000">
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-80"></div>
+      
+      <!-- Content -->
+      <div class="absolute inset-0 flex flex-col justify-end p-8 md:p-12">
+        <div class="space-y-6">
+          <div class="space-y-2">
+            <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-black uppercase tracking-widest rounded-sm">
+              Tech
+            </span>
+            <h3 class="text-4xl md:text-5xl lg:text-6xl font-black text-white uppercase leading-none">
+              Innovation<br/>Sans Limite
+            </h3>
+            <p class="text-white/80 text-lg max-w-md hidden md:block">
+              Les dernières technologies pour votre quotidien
+            </p>
+          </div>
+          <a [routerLink]="['/products']" [queryParams]="{category: 'electronics'}"
+             class="inline-flex items-center gap-3 px-8 py-4 bg-white text-black rounded-full font-black hover:bg-gray-100 transition-all group/btn">
+            <span>ACHETER</span>
+            <svg class="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Banner -->
+    <div class="group relative aspect-square md:aspect-[4/5] overflow-hidden">
+      <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1000&h=1250&fit=crop&q=80" 
+           alt="Fashion" 
+           class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000">
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-80"></div>
+      
+      <!-- Content -->
+      <div class="absolute inset-0 flex flex-col justify-end p-8 md:p-12">
+        <div class="space-y-6">
+          <div class="space-y-2">
+            <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-black uppercase tracking-widest rounded-sm">
+              Style
+            </span>
+            <h3 class="text-4xl md:text-5xl lg:text-6xl font-black text-white uppercase leading-none">
+              Affirmez<br/>Votre Style
+            </h3>
+            <p class="text-white/80 text-lg max-w-md hidden md:block">
+              Des pièces uniques qui font la différence
+            </p>
+          </div>
+          <a [routerLink]="['/products']" [queryParams]="{category: 'fashion'}"
+             class="inline-flex items-center gap-3 px-8 py-4 bg-white text-black rounded-full font-black hover:bg-gray-100 transition-all group/btn">
+            <span>ACHETER</span>
+            <svg class="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+          </svg>
+        </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Trending - Professional Carousel -->
+<section class="py-16 md:py-24 bg-gray-50">
+  <div class="container mx-auto px-8">
+    <div class="flex items-end justify-between mb-12">
+      <div>
+        <span class="inline-block px-4 py-1.5 bg-black text-white text-xs font-black uppercase tracking-widest rounded-full mb-4">
+          Tendance Actuelle
+        </span>
+        <h2 class="text-3xl md:text-5xl font-black text-black uppercase">
+          Tendances
+      </h2>
+      </div>
+      <a routerLink="/products" class="hidden md:flex items-center gap-2 px-6 py-3 border-2 border-black text-black rounded-full font-bold hover:bg-black hover:text-white transition-all group">
+        <span>Voir tout</span>
+        <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+        </svg>
+      </a>
+      </div>
+
+    <!-- Grid 5 Colonnes Desktop, 2 Mobile -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
+      <a *ngFor="let category of categories.slice(0, 5); let i = index" 
+           [routerLink]="['/products']"
+           [queryParams]="{category: category.slug}"
+         class="group opacity-0 animate-fade-in-up"
+         [style.animation-delay.ms]="i * 100">
+        <div class="relative aspect-square bg-gray-200 overflow-hidden rounded-lg mb-4 group-hover:shadow-2xl transition-all duration-500">
+          <img [src]="category.image" 
+               [alt]="category.name" 
+               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all"></div>
+        </div>
+        <div class="space-y-1">
+          <h3 class="text-sm md:text-base font-black text-black uppercase tracking-tight">
+              {{ category.name }}
+            </h3>
+          <p class="text-xs md:text-sm text-gray-500 font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
+            <span>Explorer</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+            </svg>
+          </p>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Membership Card - Ultra Professional -->
+<section class="py-16 md:py-24 bg-white">
+  <div class="container mx-auto px-8">
+    <div class="max-w-6xl mx-auto">
+      <div class="relative bg-black text-white overflow-hidden rounded-none">
+        <!-- Grid Pattern Background -->
+        <div class="absolute inset-0 opacity-5">
+          <div class="absolute inset-0" style="background-image: repeating-linear-gradient(0deg, transparent, transparent 50px, white 50px, white 51px), repeating-linear-gradient(90deg, transparent, transparent 50px, white 50px, white 51px);"></div>
+        </div>
+        
+        <div class="relative grid grid-cols-1 lg:grid-cols-5 gap-8">
+          <!-- Left: Content -->
+          <div class="lg:col-span-3 p-8 md:p-16 space-y-8">
+            <div class="space-y-4">
+              <h2 class="text-4xl md:text-6xl font-black uppercase leading-none">
+                Membre<br/>
+                JAAYMAA
+              </h2>
+              <div class="h-1 w-24 bg-white"></div>
+              <p class="text-lg md:text-xl text-gray-300 max-w-lg">
+                Rejoignez une communauté exclusive et profitez d'avantages réservés aux membres
+              </p>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="flex items-start gap-3">
+                <div class="flex-shrink-0 w-6 h-6 border-2 border-white rounded-sm flex items-center justify-center">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="font-bold text-white mb-1">Nouveautés en Exclusivité</div>
+                  <div class="text-sm text-gray-400">Accès prioritaire</div>
+                </div>
+              </div>
+              
+              <div class="flex items-start gap-3">
+                <div class="flex-shrink-0 w-6 h-6 border-2 border-white rounded-sm flex items-center justify-center">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="font-bold text-white mb-1">Réductions Membres</div>
+                  <div class="text-sm text-gray-400">Jusqu'à -30%</div>
+                </div>
+              </div>
+              
+              <div class="flex items-start gap-3">
+                <div class="flex-shrink-0 w-6 h-6 border-2 border-white rounded-sm flex items-center justify-center">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="font-bold text-white mb-1">Livraison Gratuite</div>
+                  <div class="text-sm text-gray-400">Sans minimum</div>
+                </div>
+              </div>
+              
+              <div class="flex items-start gap-3">
+                <div class="flex-shrink-0 w-6 h-6 border-2 border-white rounded-sm flex items-center justify-center">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+              </svg>
+                </div>
+                <div>
+                  <div class="font-bold text-white mb-1">Support Prioritaire</div>
+                  <div class="text-sm text-gray-400">Assistance VIP</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-4 pt-4">
+              <a routerLink="/auth/register" 
+                 class="px-10 py-5 bg-white text-black rounded-full font-black uppercase tracking-wider hover:bg-gray-100 transition-all text-center text-sm">
+                 Nous Rejoindre
+              </a>
+              <a routerLink="/auth/login" 
+                 class="px-10 py-5 border-2 border-white/40 text-white rounded-full font-black uppercase tracking-wider hover:bg-white/10 transition-all text-center text-sm">
+                Connexion
+              </a>
+            </div>
+          </div>
+
+          <!-- Right: Image -->
+          <div class="lg:col-span-2 relative h-64 lg:h-auto">
+            <img src="https://images.unsplash.com/photo-1556906781-9a412961c28c?w=800&h=1000&fit=crop" 
+                 alt="Member" 
+                 class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-r from-black via-black/50 to-transparent lg:hidden"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- The Essentials - Modern 3 Column -->
+<section class="py-16 md:py-24 bg-white">
+  <div class="container mx-auto px-8">
+    <div class="mb-12">
+      <span class="inline-block px-4 py-1.5 bg-black text-white text-xs font-black uppercase tracking-widest rounded-full mb-4">
+        Indispensable
+      </span>
+      <h2 class="text-3xl md:text-5xl font-black text-black uppercase">
+        L'Essentiel
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="group">
+        <div class="aspect-square bg-gray-100 overflow-hidden mb-6 group-hover:shadow-2xl transition-all duration-500">
+          <img src="https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=600&h=600&fit=crop&q=80" 
+               alt="Montres" 
+               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+        </div>
+        <button class="w-full px-8 py-4 border-2 border-black text-black rounded-full font-black uppercase tracking-wider hover:bg-black hover:text-white transition-all text-sm">
+          Montres
+        </button>
+      </div>
+
+      <div class="group">
+        <div class="aspect-square bg-gray-100 overflow-hidden mb-6 group-hover:shadow-2xl transition-all duration-500">
+          <img src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=600&h=600&fit=crop&q=80" 
+               alt="Lunettes" 
+               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+        </div>
+        <button class="w-full px-8 py-4 border-2 border-black text-black rounded-full font-black uppercase tracking-wider hover:bg-black hover:text-white transition-all text-sm">
+          Lunettes
+        </button>
+      </div>
+
+      <div class="group">
+        <div class="aspect-square bg-gray-100 overflow-hidden mb-6 group-hover:shadow-2xl transition-all duration-500">
+          <img src="https://images.unsplash.com/photo-1484704849700-f032a568e944?w=600&h=600&fit=crop&q=80" 
+               alt="Audio" 
+               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+        </div>
+        <button class="w-full px-8 py-4 border-2 border-black text-black rounded-full font-black uppercase tracking-wider hover:bg-black hover:text-white transition-all text-sm">
+          Audio
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section - Minimalist Pro -->
+<section class="py-16 md:py-24 bg-black text-white">
+  <div class="container mx-auto px-8">
+    <div class="max-w-5xl mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
+        <!-- Feature 1 -->
+        <div class="group text-center space-y-4">
+          <div class="w-20 h-20 mx-auto border-2 border-white/30 rounded-full flex items-center justify-center group-hover:border-white group-hover:scale-110 transition-all">
+            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-black uppercase tracking-wider mb-1">Livraison Rapide</h3>
+            <p class="text-xs text-gray-400 uppercase tracking-widest">24-48H Dakar</p>
+          </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="group text-center space-y-4">
+          <div class="w-20 h-20 mx-auto border-2 border-white/30 rounded-full flex items-center justify-center group-hover:border-white group-hover:scale-110 transition-all">
+            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-black uppercase tracking-wider mb-1">Paiement Sécurisé</h3>
+            <p class="text-xs text-gray-400 uppercase tracking-widest">SSL Protégé</p>
+          </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="group text-center space-y-4">
+          <div class="w-20 h-20 mx-auto border-2 border-white/30 rounded-full flex items-center justify-center group-hover:border-white group-hover:scale-110 transition-all">
+            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-black uppercase tracking-wider mb-1">Retours Faciles</h3>
+            <p class="text-xs text-gray-400 uppercase tracking-widest">30 Jours</p>
+          </div>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="group text-center space-y-4">
+          <div class="w-20 h-20 mx-auto border-2 border-white/30 rounded-full flex items-center justify-center group-hover:border-white group-hover:scale-110 transition-all">
+            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-black uppercase tracking-wider mb-1">Support Premium</h3>
+            <p class="text-xs text-gray-400 uppercase tracking-widest">24/7 Disponible</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Newsletter - Professional Minimal -->
+<section class="py-16 md:py-24 bg-gray-50">
+  <div class="container mx-auto px-8">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-5xl font-black text-black uppercase mb-4">
+          Newsletter JAAYMAA
+        </h2>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+          Soyez les premiers informés de nos nouveautés, ventes privées et offres exclusives
+        </p>
+      </div>
+
+      <!-- Form Professional -->
+      <div class="max-w-2xl mx-auto">
+        <div class="flex flex-col sm:flex-row gap-4">
+          <input type="email" 
+                 placeholder="votre@email.com" 
+                 class="flex-1 px-8 py-5 bg-white border-2 border-gray-300 text-black text-lg focus:outline-none focus:border-black transition-colors rounded-full">
+          <button class="px-10 py-5 bg-black text-white rounded-full font-black uppercase tracking-wider hover:bg-gray-800 transition-all text-sm whitespace-nowrap">
+          S'abonner
+        </button>
+        </div>
+        <p class="text-sm text-gray-500 mt-4 text-center">
+          En vous inscrivant, vous acceptez de recevoir nos communications marketing. Désinscription possible à tout moment.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

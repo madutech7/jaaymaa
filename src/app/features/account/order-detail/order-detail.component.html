@@ -1,0 +1,264 @@
+<div class="container mx-auto px-4 py-8">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex justify-center items-center min-h-[400px]">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="max-w-2xl mx-auto">
+    <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+      <svg class="mx-auto h-12 w-12 text-red-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+      </svg>
+      <h3 class="text-lg font-semibold text-red-800 mb-2">{{ error }}</h3>
+      <a routerLink="/account/orders" class="text-indigo-600 hover:text-indigo-800 font-medium">
+        ← Retour aux commandes
+      </a>
+    </div>
+  </div>
+
+  <!-- Order Detail -->
+  <div *ngIf="order && !loading" class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+      <a routerLink="/account/orders" class="inline-flex items-center text-indigo-600 hover:text-indigo-800 mb-4">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+        Retour aux commandes
+      </a>
+      
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">Commande #{{ order.orderNumber }}</h1>
+          <p class="text-gray-600">Passée le {{ order.createdAt | date: 'dd MMMM yyyy à HH:mm' }}</p>
+        </div>
+        <div class="mt-4 md:mt-0 flex flex-col gap-2">
+          <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium {{ getStatusClass(order.status) }}">
+            {{ getStatusLabel(order.status) }}
+          </span>
+          <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium {{ getPaymentStatusClass(order.paymentStatus) }}">
+            Paiement : {{ getPaymentStatusLabel(order.paymentStatus) }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Progress -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+      <h2 class="text-xl font-semibold mb-4">Suivi de commande</h2>
+      <div class="relative">
+        <div class="flex justify-between items-center">
+          <!-- Pending -->
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center {{ order.status !== 'cancelled' ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600' }}">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+              </svg>
+            </div>
+            <span class="text-xs mt-2 text-center">Confirmée</span>
+          </div>
+
+          <!-- Line 1 -->
+          <div class="flex-1 h-1 mx-2 {{ order.status === 'processing' || order.status === 'shipped' || order.status === 'delivered' ? 'bg-green-500' : 'bg-gray-300' }}"></div>
+
+          <!-- Processing -->
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center {{ order.status === 'processing' || order.status === 'shipped' || order.status === 'delivered' ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600' }}">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+              </svg>
+            </div>
+            <span class="text-xs mt-2 text-center">En traitement</span>
+          </div>
+
+          <!-- Line 2 -->
+          <div class="flex-1 h-1 mx-2 {{ order.status === 'shipped' || order.status === 'delivered' ? 'bg-green-500' : 'bg-gray-300' }}"></div>
+
+          <!-- Shipped -->
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center {{ order.status === 'shipped' || order.status === 'delivered' ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600' }}">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+              </svg>
+            </div>
+            <span class="text-xs mt-2 text-center">Expédiée</span>
+          </div>
+
+          <!-- Line 3 -->
+          <div class="flex-1 h-1 mx-2 {{ order.status === 'delivered' ? 'bg-green-500' : 'bg-gray-300' }}"></div>
+
+          <!-- Delivered -->
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center {{ order.status === 'delivered' ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600' }}">
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+              </svg>
+            </div>
+            <span class="text-xs mt-2 text-center">Livrée</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tracking Number -->
+      <div *ngIf="order.trackingNumber" class="mt-6 p-4 bg-blue-50 rounded-lg">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-600">Numéro de suivi</p>
+            <p class="text-lg font-semibold text-gray-900">{{ order.trackingNumber }}</p>
+          </div>
+          <button class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+            Suivre ma commande
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Left Column: Order Items -->
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-xl font-semibold mb-4">Articles commandés</h2>
+          
+          <div class="divide-y divide-gray-200">
+            <div *ngFor="let item of order.items" class="py-4 flex gap-4">
+              <div class="w-20 h-20 flex-shrink-0">
+                <img [src]="item.productImage" [alt]="item.productName" 
+                     class="w-full h-full object-cover rounded-lg"
+                     onerror="this.src='/assets/logo.png'">
+              </div>
+              
+              <div class="flex-1 min-w-0">
+                <h3 class="text-sm font-medium text-gray-900 mb-1">{{ item.productName }}</h3>
+                
+                <div *ngIf="item.selectedVariant && item.selectedVariant.length > 0" class="text-sm text-gray-600 mb-1">
+                  <span *ngFor="let variant of item.selectedVariant; let last = last">
+                    {{ variant.name }}: {{ variant.value }}<span *ngIf="!last">, </span>
+                  </span>
+                </div>
+                
+                <p class="text-sm text-gray-600">Quantité : {{ item.quantity }}</p>
+              </div>
+              
+              <div class="text-right">
+                <p class="text-sm font-medium text-gray-900">{{ currencyService.formatPrice(item.price) }}</p>
+                <p *ngIf="item.quantity > 1" class="text-xs text-gray-500">
+                  {{ currencyService.formatPrice(item.price * item.quantity) }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Summary -->
+          <div class="mt-6 pt-6 border-t border-gray-200">
+            <div class="space-y-2">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Sous-total</span>
+                <span class="text-gray-900">{{ currencyService.formatPrice(order.subtotal) }}</span>
+              </div>
+              
+              <div *ngIf="order.discount > 0" class="flex justify-between text-sm">
+                <span class="text-gray-600">Réduction</span>
+                <span class="text-green-600">-{{ currencyService.formatPrice(order.discount) }}</span>
+              </div>
+              
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Livraison</span>
+                <span class="text-gray-900">{{ currencyService.formatPrice(order.shipping) }}</span>
+              </div>
+              
+              
+              <div class="flex justify-between text-lg font-semibold pt-2 border-t border-gray-200">
+                <span class="text-gray-900">Total</span>
+                <span class="text-indigo-600">{{ currencyService.formatPrice(order.total) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Details -->
+      <div class="lg:col-span-1 space-y-6">
+        <!-- Shipping Address -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-lg font-semibold mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            Adresse de livraison
+          </h2>
+          <div class="text-sm text-gray-600 space-y-1">
+            <p class="font-medium text-gray-900">{{ order.shippingAddress.firstName }} {{ order.shippingAddress.lastName }}</p>
+            <p>{{ order.shippingAddress.street }}</p>
+            <p>{{ order.shippingAddress.zipCode }} {{ order.shippingAddress.city }}</p>
+            <p *ngIf="order.shippingAddress.state">{{ order.shippingAddress.state }}</p>
+            <p>{{ order.shippingAddress.country }}</p>
+            <p *ngIf="order.shippingAddress.phone" class="pt-2">{{ order.shippingAddress.phone }}</p>
+          </div>
+        </div>
+
+        <!-- Billing Address -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-lg font-semibold mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+            </svg>
+            Adresse de facturation
+          </h2>
+          <div class="text-sm text-gray-600 space-y-1">
+            <p class="font-medium text-gray-900">{{ order.billingAddress.firstName }} {{ order.billingAddress.lastName }}</p>
+            <p>{{ order.billingAddress.street }}</p>
+            <p>{{ order.billingAddress.zipCode }} {{ order.billingAddress.city }}</p>
+            <p *ngIf="order.billingAddress.state">{{ order.billingAddress.state }}</p>
+            <p>{{ order.billingAddress.country }}</p>
+            <p *ngIf="order.billingAddress.phone" class="pt-2">{{ order.billingAddress.phone }}</p>
+          </div>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-lg font-semibold mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+            Méthode de paiement
+          </h2>
+          <p class="text-sm text-gray-600">{{ order.paymentMethod }}</p>
+        </div>
+
+        <!-- Notes -->
+        <div *ngIf="order.notes" class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-lg font-semibold mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+            </svg>
+            Notes
+          </h2>
+          <p class="text-sm text-gray-600">{{ order.notes }}</p>
+        </div>
+
+        <!-- Help Section -->
+        <div class="bg-indigo-50 rounded-lg p-6">
+          <h2 class="text-lg font-semibold mb-2 text-indigo-900">Besoin d'aide ?</h2>
+          <p class="text-sm text-indigo-700 mb-4">Notre équipe est là pour vous aider</p>
+          <div class="space-y-2">
+            <a href="mailto:contact@shoplux.com" class="flex items-center text-sm text-indigo-600 hover:text-indigo-800">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+              contact@shoplux.com
+            </a>
+            <a href="tel:+33123456789" class="flex items-center text-sm text-indigo-600 hover:text-indigo-800">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+              </svg>
+              +33 1 23 45 67 89
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
