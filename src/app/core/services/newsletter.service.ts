@@ -115,7 +115,7 @@ export class NewsletterService {
         return [];
       }
 
-      return data ? data.map((s: any) => this.mapSubscriber(s)) : [];
+      return data ? data.map(s => this.mapSubscriber(s)) : [];
     } catch (error) {
       console.error('Error fetching subscribers:', error);
       return [];

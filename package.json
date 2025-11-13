@@ -33,7 +33,6 @@
     "@angular/platform-browser-dynamic": "^20.3.0",
     "@angular/router": "^20.3.0",
     "@angular/service-worker": "^20.3.0",
-    "@supabase/supabase-js": "^2.39.0",
     "chart.js": "^4.5.0",
     "firebase": "^12.3.0",
     "rxjs": "~7.8.0",
